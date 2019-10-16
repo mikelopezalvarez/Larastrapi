@@ -49,3 +49,5 @@ Route::prefix('admin')->namespace('Admin')->middleware(['auth','demo'])->group(f
 
  require_once "Larastrapi/SegurosMultiples/Products.php"; 
  require_once "Larastrapi/SegurosMultiples/Users.php"; 
+ require_once "Larastrapi/MiPrimeraApp/Articulos.php"; 
+ require_once "Larastrapi/MiPrimeraApp/Productos.php"; 

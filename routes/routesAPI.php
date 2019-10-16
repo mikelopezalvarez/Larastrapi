@@ -1,7 +1,7 @@
 <?php
 
 
-Route::get('/testing','Administration\\DataManagementController@prepareData')->name('nada');
+Route::post('/testing','Administration\\DataManagementController@saveAppConfiguration')->name('nada');
 
 
 

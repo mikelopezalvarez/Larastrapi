@@ -9,10 +9,17 @@ use Illuminate\Support\Facades\Storage;
 
 class DataManagementController extends Controller
 {
+    private $app;
     
     private $appName = 'Seguros Multiples$&$34534523';
-
+    
     private $appNamePath;
+    
+    private $appActive;
+
+    private $appSecurity;
+
+    private $appToken;
 
     private $tables = [
             [
@@ -32,9 +39,31 @@ class DataManagementController extends Controller
 
     ];
 
-    public function prepareData(Request $request){
+    public function saveAppConfiguration(Request $request){
 
-       // $dir = 'test/';
+        // Get and decode json data
+        $app = json_decode($request->app, true);
+
+        // Populate app data
+        $this->app = $app;
+
+        $this->appName = $app["name"];
+
+        $this->appNamePath = $this::cleanToName($app["name"]);
+
+        $this->appActive = $app["name"];
+
+        $this->appSecurity = $app["security"]["active"];
+
+        $this->appToken = $app["security"]["token"];
+
+        $this->tables = $app["tables"];
+
+        
+
+        $this::scalffolding();
+
+        //dd($this->tables);
 
         //File:makeDirectory($dir, 0777,true);
         //$res = Storage::disk('controllers')->makeDirectory($dir);
@@ -43,11 +72,11 @@ class DataManagementController extends Controller
 
         // dd(Storage::disk('controllers'));
 
-        $this->appNamePath = $this::cleanToControllerName($this->appName);
+        //$this->appNamePath = $this::cleanToName($this->appName);
 
-        $this::createAppRoutesFolder();
+        //$this::createAppRoutesFolder();
 
-        $this::registerRoutes();
+        //$this::registerRoutes();
 
         //$this::createController('Articulos');
         //$this::createModel('Articulos');
@@ -59,8 +88,31 @@ class DataManagementController extends Controller
 
     }
 
+    private function scalffolding(){
+
+        // Make:Controllers
+        if($this::createAppControllerFolder() == true){
+            foreach ($this->tables as $item) {
+                $this::createController($item);
+            }
+        }
+
+        // Make:Models
+        if($this:: createAppModelFolder() == true){
+            foreach ($this->tables as $item) {
+                $this::createModel($item);
+            }
+        }
+
+        // Make:Routes
+        if($this::createAppRoutesFolder() == true){
+            $this::registerRoutes();
+        }
+
+    }
+
     // Method to clean App Name to Remove Special Character and Numbers
-    public function cleanToControllerName($name){
+    public function cleanToName($name){
         // Remove empty space
         $name = str_replace(' ', '', $name);
         // Remove special character
@@ -73,7 +125,7 @@ class DataManagementController extends Controller
     private function createAppControllerFolder(){
 
         // Props represent the name of folder app formatted
-        $this->appNamePath = $this::cleanToControllerName($this->appName);
+        $this->appNamePath = $this::cleanToName($this->appName);
 
         // Return a boolean to process completed
         return Storage::disk('controllers')->makeDirectory($this->appNamePath);
@@ -83,11 +135,13 @@ class DataManagementController extends Controller
 
     // Method to Create the App Controller 
     private function createController($table){
-        // Prepare the Class scheme inside the controller
-        $contents = '<?php echo "Hello World"; ?>';
 
         // Filtering file name
-        $fileName = $this::cleanToControllerName($table) . 'Controller.php';
+        $fileName = $this::cleanToName($table["name"]) . 'Controller.php';
+
+        // Prepare the Class scheme inside the controller
+        $contents = '<?php '.$fileName.' ?>';
+
 
         // Return a boolean to process completed
         return Storage::disk('controllers')->put($this->appNamePath.'/'.$fileName, $contents);
@@ -105,11 +159,12 @@ class DataManagementController extends Controller
 
     // Method to Create the App Controller 
     private function createModel($table){
-        // Prepare the Class scheme inside the model
-        $contents = '<?php echo "Hello World"; ?>';
 
         // Filtering file name
-        $fileName = $this::cleanToControllerName($table) . '.php';
+        $fileName = $this::cleanToName($table["name"]) . '.php';
+        
+        // Prepare the Class scheme inside the model
+        $contents = '<?php echo "Hello World"; ?>';
 
         // Return a boolean to process completed
         return Storage::disk('models')->put($this->appNamePath.'/'.$fileName, $contents);
@@ -127,9 +182,9 @@ class DataManagementController extends Controller
         foreach ($this->tables as $item) {
             
             // Get clean table name 
-            $tableName = $this::cleanToControllerName($item["name"]);
+            $tableName = $this::cleanToName($item["name"]);
             // Get file name to set controller
-            $controllerName = $this::cleanToControllerName($item["name"]) . 'Controller';
+            $controllerName = $this::cleanToName($item["name"]) . 'Controller';
             
             // Init var of content
             $contents = "<?php " . PHP_EOL;
@@ -159,7 +214,7 @@ class DataManagementController extends Controller
             $contents.= "?>";
 
             // Filtering file name
-            $fileName = $this::cleanToControllerName($item["name"]) . '.php';
+            $fileName = $this::cleanToName($item["name"]) . '.php';
 
             // Create route file (get, add, del, upd)
             $this::createRoute( $fileName, $contents );

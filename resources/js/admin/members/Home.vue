@@ -15,6 +15,13 @@
             <!--<div>Word of the Day</div>-->
             <p class="display-1 text--primary">
               My First App
+               <v-btn
+                    @click="saveData"
+                    text
+                    color="green"
+                  >
+                    Save Test
+                  </v-btn>
             </p>
             <div class="text--primary">
               Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit, quam. Nisi dolor exercitationem nostrum temporibus, repellat earum rerum, veritatis provident voluptatibus ad ea, delectus maiores non et corrupti unde recusandae?
@@ -325,6 +332,7 @@
             menu: false,
             switch1: true,
              app: {
+               name: "Mi Primera App",
                active: true,
                security: {
                  active: false,
@@ -471,6 +479,23 @@
                 result += characters.charAt(Math.floor(Math.random() * charactersLength));
             }
             this.app.security.token = result;
+          },
+          saveData(){
+
+
+            var data = new FormData();
+            data.append( "app", JSON.stringify( this.app ) );
+
+            fetch("/testing",
+            {
+                method: "POST",
+                body: data
+            })
+            .then(function(res){ 
+              return console.log(res);
+            })
+            
+
           }
         },
         mounted() {
