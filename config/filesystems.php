@@ -81,6 +81,10 @@ return [
             'driver' => 'local',
             'root' => base_path() . '/routes',
         ],
+        'migration' => [
+            'driver' => 'local',
+            'root' => base_path() . '/database/migrations',
+        ],
 
     ],
 

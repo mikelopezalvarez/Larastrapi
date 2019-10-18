@@ -120,6 +120,7 @@
                             class="mb-0 pa-0"
                             outlined
                             dense
+                            hide-details
                           ></v-text-field>
                           
                         </v-col>
@@ -155,7 +156,7 @@
                               borderless
                               
                             >
-                             Remove Table
+                             Drop Table
                              <v-icon right>clear</v-icon> 
                             </v-btn>
                           </template>
@@ -235,12 +236,14 @@
                                   <v-col cols="12" sm="12" md="10" class="pa-0">
                                   <v-text-field 
                                   
-                                      v-model="firstname"
+                                      v-model="item.name"
                                       :rules="nameRules"
                                       md="6"
                                       label="Field Name"
                                       class="ma-0 pa-0"
                                       required
+                                      dense 
+                                      hide-details
                                     ></v-text-field>
                                   </v-col>
 
@@ -331,7 +334,7 @@
           return {
             menu: false,
             switch1: true,
-             app: {
+            beforeApp: {
                name: "Mi Primera App",
                active: true,
                security: {
@@ -340,11 +343,97 @@
                },
                tables: [
                   {
-                    name: '',
+                    name: 'Personas',
                     fields: [
                       {
                         type: 'string',
-                        name: '',
+                        name: 'Nombre',
+                        relation: {
+                          active: false,
+                          table: '',
+                          field: '',
+                          type: '',
+                        },
+                        icon: 'text_format',
+
+                      }
+                    ],
+                    users: [],
+                    active: true,
+                    options: {
+                      get: true,
+                      add: true,
+                      del: true,
+                      upd: true
+                    }
+                  },
+                  {
+                    name: 'Hola',
+                    fields: [
+                      {
+                        type: 'string',
+                        name: 'Nombre',
+                        relation: {
+                          active: false,
+                          table: '',
+                          field: '',
+                          type: '',
+                        },
+                        icon: 'text_format',
+
+                      }
+                    ],
+                    users: [],
+                    active: true,
+                    options: {
+                      get: true,
+                      add: true,
+                      del: true,
+                      upd: true
+                    }
+                  }
+               ]
+            },
+            app: {
+               name: "Mi Primera App",
+               active: true,
+               security: {
+                 active: false,
+                 token: 'HIoidw98sw5548hgy7gouiiwqhUHGFUYhsd',
+               },
+               tables: [
+                 
+                  {
+                    name: 'Productos',
+                    fields: [
+                      {
+                        type: 'string',
+                        name: 'Nombre',
+                        relation: {
+                          active: false,
+                          table: '',
+                          field: '',
+                          type: '',
+                        },
+                        icon: 'text_format',
+
+                      }
+                    ],
+                    users: [],
+                    active: true,
+                    options: {
+                      get: true,
+                      add: true,
+                      del: true,
+                      upd: true
+                    }
+                  },
+                  {
+                    name: 'Clientes',
+                    fields: [
+                      {
+                        type: 'string',
+                        name: 'Nombre',
                         relation: {
                           active: false,
                           table: '',
@@ -485,6 +574,8 @@
 
             var data = new FormData();
             data.append( "app", JSON.stringify( this.app ) );
+            data.append( "beforeApp", JSON.stringify( this.beforeApp ) );
+            
 
             fetch("/testing",
             {
