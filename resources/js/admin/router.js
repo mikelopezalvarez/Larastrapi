@@ -11,9 +11,9 @@ const router = new Router({
             redirect: '/dashboard',
         },
         {
-            name: 'dashboard',
-            path: '/dashboard',
-            component: require('./members/Home'),
+            name: 'data_management',
+            path: '/data_management',
+            component: require('./DataManagement/DataManagement2'),
         },
         {
             path: '/users',

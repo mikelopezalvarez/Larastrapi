@@ -14,7 +14,7 @@
           <v-card-text>
             <!--<div>Word of the Day</div>-->
             <p class="display-1 text--primary">
-              My First App
+              {{ app.name }}
                <v-btn
                     @click="saveData"
                     text
@@ -24,7 +24,7 @@
                   </v-btn>
             </p>
             <div class="text--primary">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Suscipit, quam. Nisi dolor exercitationem nostrum temporibus, repellat earum rerum, veritatis provident voluptatibus ad ea, delectus maiores non et corrupti unde recusandae?
+              {{ app.descrip }}            
             </div>
             <p>Status</p>
             <v-switch
@@ -329,22 +329,23 @@
 
 <script>
     export default {
-        // inject: ['theme'],
+        props: {
+          id: Number,
+        },
         data : function(){
           return {
             menu: false,
             switch1: true,
             beforeApp: {
-               name: "Mi Primera App",
+               name: '',
                active: true,
                security: {
                  active: false,
-                 token: 'HIoidw98sw5548hgy7gouiiwqhUHGFUYhsd',
+                 token: '',
                },
-               tables: [
-                  
-               ]
+               tables: []
             },
+            appInfo: {},
             app: {
                name: "Mi Primera App",
                active: true,
@@ -450,6 +451,41 @@
           }
         },
         methods: {
+
+          getApp(){
+
+            var self = this;  
+            // Create App
+            axios.post('/app/getObjectById', {
+                id: this.id,
+            })
+            .then(function (res) {
+                
+                //self.beforeApp = res.data;
+
+                self.app = res.data;
+
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+
+            // Create App
+            axios.post('/app/getObjectById', {
+                id: this.id,
+            })
+            .then(function (res) {
+                
+                //self.beforeApp = res.data;
+
+                self.app = res.data;
+
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+
+          },
           addTable(){
             //Prepare Obj
             let obj = {
@@ -544,9 +580,8 @@
 
             const self = this;
 
-            self.$store.commit('setBreadcrumbs',[
-                {label:'Dashboard',name:''}
-            ]);
+            self.getApp();
+
         }
     }
 </script>

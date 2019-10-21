@@ -79,7 +79,7 @@ class SinglePageController extends AdminController
                 'nav_type' => '',
                 'icon'=>'settings_input_component',
                 'route_type'=>'vue',
-                'route_name'=>'dashboard',
+                'route_name'=>'data_management',
                 'visible'=>true,
             ],
             [

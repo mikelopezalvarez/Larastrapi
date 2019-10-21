@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Artisan;
 use Carbon\Carbon;
 
+//Models
+use App\App;
+
 class DataManagementController extends Controller
 {
     private $beforeApp;
@@ -99,7 +102,70 @@ class DataManagementController extends Controller
 
     }
 
-    private function scalffolding(){
+    private function genPrefix($len = 5) {
+        $word = array_merge(range('a', 'z'), range('a', 'z'));
+        shuffle($word);
+        return substr(implode($word), 0, $len);
+    }
+
+    public function createApp(Request $request){
+
+        // Get and decode json data
+        $data = $request->data;
+
+        // Formating table name
+        $this->appNamePath = $this::cleanToName($data["name"]);
+
+        // Create Controller Folder
+        if($this::createAppControllerFolder() != true){
+            return response('Error in Controller Folder Creation', 200)
+                  ->header('Content-Type', 'text/plain');
+        }
+        // Create Model Folder
+        if($this::createAppModelFolder() != true){
+            return response('Error in Model Folder Creation', 200)
+                  ->header('Content-Type', 'text/plain');
+        }
+        // Create Routes Folder
+        if($this::createAppRoutesFolder() != true){
+            return response('Error in Routes Folder Creation', 200)
+                  ->header('Content-Type', 'text/plain');
+        }
+
+        //Instance App model
+        $app = new App;
+
+        //Fill the fields
+        $app->name = $data["name"];
+        $app->alias = $this::cleanToName($data["name"]);
+        $app->prefix =  $this::genPrefix(5);
+        $app->app_description = $data["descrip"];
+        $app->public = (($data["public"]) ? 1 : 0);
+        $app->security = (($data["security"]["active"]) ? 1 : 0);
+        $app->token = $data["security"]["token"];
+        $app->structure =  json_encode($request->data);
+        $app->active = 1;
+        $app->users = 1;
+        
+        // Save app in database
+        if($app->save()){
+            return response()->json(['success' => true, "id" => $app->id]);
+        }else{
+            return response()->json(['success' => false]);
+        }
+
+        
+        
+
+    }
+
+    private function createAppScalffolding(){
+
+        // Get all tables to Drop
+        $this::getTablesToDrop();
+
+        // Get all tables to Create
+        $this::getTablesToCreate();
 
         // Make:Migration
         if($this::createMigration() == true){
@@ -114,7 +180,7 @@ class DataManagementController extends Controller
         }
 
         // Make:Models
-        if($this:: createAppModelFolder() == true){
+        if($this::createAppModelFolder() == true){
             foreach ($this->tables as $item) {
                 $this::createModel($item);
             }
@@ -192,10 +258,15 @@ class DataManagementController extends Controller
         $res = "\t\t" . "if (!Schema::hasTable('".$tableName."')) { " . PHP_EOL;
             $res .= "\t\t\t" . 'Schema::create("'.$tableName.'", function (Blueprint $t) {' . PHP_EOL;
         
+                $res .= "\t\t\t\t" . '$t->engine = "InnoDB"; ' . PHP_EOL;
+                $res .= "\t\t\t\t" . '$t->increments("id"); ' . PHP_EOL;
+
+        // Aqui tengo que mirar si existen las columnas y si el tipo es igual, no las agrego la migracion.....
+        
         // Create table
         foreach ($table["fields"] as $item) {
 
-            $res .= "\t\t\t\t" . '$t->'.$item['type'].'("'.$item['name'].'"); ' . PHP_EOL;
+            $res .= "\t\t\t\t" . '$t->'.$item['type'].'("'.$item['name'].'")->nullable(); ' . PHP_EOL;
 
         }
         $res.= "\t\t\t" . '});'. PHP_EOL;
@@ -206,7 +277,7 @@ class DataManagementController extends Controller
         // Update table
         foreach ($table["fields"] as $item) {
 
-            $res .= "\t\t\t\t" . '$t->'.$item['type'].'("'.$item['name'].'"); ' . PHP_EOL;
+            $res .= "\t\t\t\t" . '$t->'.$item['type'].'("'.$item['name'].'")->nullable()->change(); ' . PHP_EOL;
         
         }
         $res.= "\t\t\t" .'});'. PHP_EOL;
@@ -220,6 +291,46 @@ class DataManagementController extends Controller
     }
     // Method to Get All New Tables Compared with Before Configuration
     private function getTablesToCreate(){
+
+        if($this->beforeApp["tables"]){
+            // Foreach to store all table name of before config
+            foreach ($this->beforeApp["tables"] as $item) {
+
+                $beforeTabComp[] = $item["name"];
+
+            }
+            // Foreach to store all table name of new config
+            foreach ($this->tables as $item) {
+
+                $afterTabComp[] = $item["name"];
+
+            }
+
+            // Store the array with new tables names
+            $newTablesNames = array_diff($afterTabComp,$beforeTabComp);
+
+        
+
+            // Foreach to get the detail of all new tables
+            foreach ($newTablesNames as $item) {
+
+                $this->createTables[] = $this::getTableDetail($item);
+
+
+            }
+
+            // Return new tables info
+            return $this->createTables;
+
+        }else{
+
+            $this->createTables = $this->tables;
+            return $this->createTables;
+        }
+
+    }
+
+    private function getFieldsToCreate(){
 
         if($this->beforeApp["tables"]){
             // Foreach to store all table name of before config
@@ -328,9 +439,6 @@ class DataManagementController extends Controller
     }
     // Method to Create the App Controller Folder
     private function createAppControllerFolder(){
-
-        // Props represent the name of folder app formatted
-        $this->appNamePath = $this::cleanToName($this->appName);
 
         // Return a boolean to process completed
         return Storage::disk('controllers')->makeDirectory($this->appNamePath);

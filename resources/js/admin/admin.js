@@ -11,6 +11,7 @@ window.Vue = require('vue');
 
 // 3rd party
 import Vue from 'vue';
+
 import Vuetify from 'vuetify';
 import 'vuetify/dist/vuetify.min.css';
 import VueProgressBar from 'vue-progressbar'
@@ -19,6 +20,7 @@ import VueProgressBar from 'vue-progressbar'
 // you can change colors here based on your needs
 // and please dont forget to recompile scripts
 Vue.use(Vuetify);
+
 
 // this is the progress bar settings, you
 // can change colors here to fit on your needs or match

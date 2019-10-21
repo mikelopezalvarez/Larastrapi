@@ -5,6 +5,12 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
+        //App
+        appSelected : 25,
+
+
+
+        //End App
 
         // breadcrumbs
         breadcrumbs: [],
