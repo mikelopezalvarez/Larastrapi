@@ -15,13 +15,7 @@
             <!--<div>Word of the Day</div>-->
             <p class="display-1 text--primary">
               {{ app.name }}
-               <v-btn
-                    @click="saveData"
-                    text
-                    color="green"
-                  >
-                    Save Test
-                  </v-btn>
+               
             </p>
             <div class="text--primary">
               {{ app.descrip }}            
@@ -56,14 +50,19 @@
               </p>
             </template>
 
+            <div class="text-center">
+             <v-btn
+              color="green accent-4"
+              class="ma-2" tile outlined
+              @click="saveData"
+            >
+              SAVE CONFIGURATION
+            </v-btn>
+            </div>
+
           </v-card-text>
           <v-card-actions>
-            <v-btn
-              text
-              color="deep-purple accent-4"
-            >
-              Duplicate Structure
-            </v-btn>
+           
           </v-card-actions>
 
 
@@ -328,6 +327,9 @@
 </template>
 
 <script>
+
+    
+
     export default {
         props: {
           id: Number,
@@ -336,16 +338,11 @@
           return {
             menu: false,
             switch1: true,
+            
+            appInfo: [],
             beforeApp: {
-               name: '',
-               active: true,
-               security: {
-                 active: false,
-                 token: '',
-               },
-               tables: []
+
             },
-            appInfo: {},
             app: {
                name: "Mi Primera App",
                active: true,
@@ -455,14 +452,12 @@
           getApp(){
 
             var self = this;  
-            // Create App
+            // Get application object
             axios.post('/app/getObjectById', {
                 id: this.id,
             })
             .then(function (res) {
                 
-                //self.beforeApp = res.data;
-
                 self.app = res.data;
 
             })
@@ -470,15 +465,26 @@
                 console.log(error);
             });
 
-            // Create App
+             // Storage application object
             axios.post('/app/getObjectById', {
                 id: this.id,
             })
             .then(function (res) {
-                
-                //self.beforeApp = res.data;
 
-                self.app = res.data;
+                self.beforeApp = res.data;
+
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+
+            // Get app information
+            axios.post('/app/getInfoById', {
+                id: this.id,
+            })
+            .then(function (res) {
+                
+                self.appInfo = res.data;
 
             })
             .catch(function (error) {
@@ -559,28 +565,57 @@
           saveData(){
 
 
-            var data = new FormData();
-            data.append( "app", JSON.stringify( this.app ) );
-            data.append( "beforeApp", JSON.stringify( this.beforeApp ) );
+            // var data = new FormData();
+            // data.append( "app", JSON.stringify( this.app ) );
+            // data.append( "beforeApp", JSON.stringify( this.beforeApp ) );
+            // data.append( "appInfo", JSON.stringify( this.appInfo ) );
             
 
-            fetch("/testing",
-            {
-                method: "POST",
-                body: data
+            // fetch("/testing",
+            // {
+            //     method: "POST",
+            //     body: data
+            // })
+            // .then(function(res){ 
+            //   return console.log(res);
+            // })
+
+            var self = this;  
+            // Create App
+            axios.post('/testing', {
+                data: self.appInfo,
+                app: self.app,
+                beforeApp: self.beforeApp,
+                id: self.id
             })
-            .then(function(res){ 
-              return console.log(res);
+            .then(function (res) {
+
+               self.getApp();
+                
+                if(res.data.success){
+
+                }
+
             })
+            .catch(function (error) {
+                console.log(error);
+            });
             
 
           }
         },
         mounted() {
 
-            const self = this;
+            //const self = this;
 
-            self.getApp();
+            //self.getApp();
+
+        },
+        created(){
+
+          this.getApp();
+
+          
 
         }
     }

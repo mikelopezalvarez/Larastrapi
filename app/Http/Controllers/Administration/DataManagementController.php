@@ -35,6 +35,8 @@ class DataManagementController extends Controller
 
     private $appToken;
 
+    private $id;
+
     private $tables = [
             [
                 "name" => "Products",
@@ -58,27 +60,70 @@ class DataManagementController extends Controller
     public function saveAppConfiguration(Request $request){
 
         // Get and decode json data
-        $app = json_decode($request->app, true);
+        $data = $request->data;
+        $this->appName = $data["name"]; //Save App Name
+        $this->appNamePath = $data["alias"]; //Save Folder Name
 
-        $beforeApp = json_decode($request->beforeApp, true);
+        $this->id = $request->id;
 
-        // Populate app data
-        $this->app = $app;
+        $this->app = $request->app;
 
-        // This is the before configuration to compare and remake or update the migration
-        $this->beforeApp = $beforeApp;
+        $this->beforeApp = $request->beforeApp;
 
-        $this->appName = $app["name"];
+        // Get tables to remove
+        $this::getTablesToDrop();
+        // Get tables to create
+        $this::getTablesToCreate();
 
-        $this->appNamePath = $this::cleanToName($app["name"]);
+        // Counting to know if create migration or not
+        $migration = 0;
 
-        $this->appActive = $app["name"];
+        if($this->removedTables){
+            $migration++;
+        }
 
-        $this->appSecurity = $app["security"]["active"];
+        if($this->createTables){
+            $migration++;
+        }
 
-        $this->appToken = $app["security"]["token"];
+        // If tables dont have changes 
+        if($migration > 0){
+            // Create migration
+            if($this::createMigration() == true){
+            Artisan::call('migrate');
+            }
+        }
 
-        $this->tables = $app["tables"];
+        $this::updAppTable();
+
+
+
+        // // Get and decode json data
+        // $app = json_decode($request->app, true);
+        // dd($app);
+        // $beforeApp = json_decode($request->beforeApp, true);
+
+        // // Populate app data
+        // $this->app = $app;
+
+        // // This is the before configuration to compare and remake or update the migration
+        // $this->beforeApp = $beforeApp;
+
+        // //$this->appName = $app["name"];
+
+        // //$this->appNamePath = $this::cleanToName($app["name"]);
+
+        // $this->appActive = $app["name"];
+
+        // $this->appSecurity = $app["security"]["active"];
+
+        // $this->appToken = $app["security"]["token"];
+
+        // $this->app["tables"] = $app["tables"];
+
+
+
+
 
         
        // return Artisan::call('migrate');
@@ -91,16 +136,29 @@ class DataManagementController extends Controller
            // Artisan::call('migrate');
         //}
 
-        $this::getTablesToDrop();
+        // $this::getTablesToDrop();
 
-        $this::getTablesToCreate();
+        // $this::getTablesToCreate();
 
-        $this::createMigration();
+        // $this::createMigration();
 
 
 
 
     }
+
+    private function updAppTable(){
+        
+        $app = App::find($this->id);
+        $app->public = (($this->app["active"]) ? 1 : 0);
+        $app->security = (($this->app["security"]["active"]) ? 1 : 0);
+        $app->token = $this->app["security"]["token"];
+        $app->structure =  json_encode($this->app);
+
+        $app->save();
+    }
+
+    
 
     private function genPrefix($len = 5) {
         $word = array_merge(range('a', 'z'), range('a', 'z'));
@@ -137,7 +195,7 @@ class DataManagementController extends Controller
 
         //Fill the fields
         $app->name = $data["name"];
-        $app->alias = $this::cleanToName($data["name"]);
+        $app->alias = $this->appNamePath;
         $app->prefix =  $this::genPrefix(5);
         $app->app_description = $data["descrip"];
         $app->public = (($data["public"]) ? 1 : 0);
@@ -174,14 +232,14 @@ class DataManagementController extends Controller
 
         // Make:Controllers
         if($this::createAppControllerFolder() == true){
-            foreach ($this->tables as $item) {
+            foreach ($this->app["tables"] as $item) {
                 $this::createController($item);
             }
         }
 
         // Make:Models
         if($this::createAppModelFolder() == true){
-            foreach ($this->tables as $item) {
+            foreach ($this->app["tables"] as $item) {
                 $this::createModel($item);
             }
         }
@@ -226,7 +284,7 @@ class DataManagementController extends Controller
 
                 $res .= $this::prepareTableBlueprint($item);
 
-                $dropIfExist .= "\t\t" . 'Schema::dropIfExists("'.$item["name"].'");' . PHP_EOL;
+                $dropIfExist .= "\t\t" . 'Schema::dropIfExists("'.$this::cleanToName($item["name"]).'");' . PHP_EOL;
 
             }
         }
@@ -266,7 +324,7 @@ class DataManagementController extends Controller
         // Create table
         foreach ($table["fields"] as $item) {
 
-            $res .= "\t\t\t\t" . '$t->'.$item['type'].'("'.$item['name'].'")->nullable(); ' . PHP_EOL;
+            $res .= "\t\t\t\t" . '$t->'.$item['type'].'("'.$this::cleanToName($item['name']).'")->nullable(); ' . PHP_EOL;
 
         }
         $res.= "\t\t\t" . '});'. PHP_EOL;
@@ -277,7 +335,7 @@ class DataManagementController extends Controller
         // Update table
         foreach ($table["fields"] as $item) {
 
-            $res .= "\t\t\t\t" . '$t->'.$item['type'].'("'.$item['name'].'")->nullable()->change(); ' . PHP_EOL;
+            $res .= "\t\t\t\t" . '$t->'.$item['type'].'("'.$this::cleanToName($item['name']).'")->nullable()->change(); ' . PHP_EOL;
         
         }
         $res.= "\t\t\t" .'});'. PHP_EOL;
@@ -292,23 +350,26 @@ class DataManagementController extends Controller
     // Method to Get All New Tables Compared with Before Configuration
     private function getTablesToCreate(){
 
-        if($this->beforeApp["tables"]){
+        // if($this->beforeApp["tables"]){
             // Foreach to store all table name of before config
             foreach ($this->beforeApp["tables"] as $item) {
 
                 $beforeTabComp[] = $item["name"];
 
             }
+            
             // Foreach to store all table name of new config
-            foreach ($this->tables as $item) {
+            foreach ($this->app["tables"] as $item) {
 
                 $afterTabComp[] = $item["name"];
+                
 
             }
+           
 
             // Store the array with new tables names
             $newTablesNames = array_diff($afterTabComp,$beforeTabComp);
-
+            
         
 
             // Foreach to get the detail of all new tables
@@ -322,11 +383,11 @@ class DataManagementController extends Controller
             // Return new tables info
             return $this->createTables;
 
-        }else{
+        // }else{
 
-            $this->createTables = $this->tables;
-            return $this->createTables;
-        }
+        //     $this->createTables = $this->app["tables"];
+        //     return $this->createTables;
+        // }
 
     }
 
@@ -340,7 +401,7 @@ class DataManagementController extends Controller
 
             }
             // Foreach to store all table name of new config
-            foreach ($this->tables as $item) {
+            foreach ($this->app["tables"] as $item) {
 
                 $afterTabComp[] = $item["name"];
 
@@ -348,6 +409,8 @@ class DataManagementController extends Controller
 
             // Store the array with new tables names
             $newTablesNames = array_diff($afterTabComp,$beforeTabComp);
+
+            
 
         
 
@@ -364,7 +427,7 @@ class DataManagementController extends Controller
 
         }else{
 
-            $this->createTables = $this->tables;
+            $this->createTables = $this->app["tables"];
             return $this->createTables;
         }
 
@@ -377,7 +440,7 @@ class DataManagementController extends Controller
     private function getTableDetail($name){
 
 
-        foreach ($this->tables as $item) {
+        foreach ($this->app["tables"] as $item) {
 
             if($item["name"] == $name){
                 return $item;
@@ -392,7 +455,7 @@ class DataManagementController extends Controller
     private function ifTableIsExistInNewApp($name){
 
 
-        foreach ($this->tables as $item) {
+        foreach ($this->app["tables"] as $item) {
 
             if ($item["name"] == $name){
                 return true;
@@ -411,7 +474,7 @@ class DataManagementController extends Controller
             foreach ($this->beforeApp["tables"] as $item) {
 
                 if($this::ifTableIsExistInNewApp($item["name"]) == false){
-                    $this->removedTables[] = $item["name"];
+                    $this->removedTables[] = $this::cleanToName($item["name"]);
                 }
 
             }
@@ -492,7 +555,7 @@ class DataManagementController extends Controller
 
     private function registerRoutes(){
         
-        foreach ($this->tables as $item) {
+        foreach ($this->app["tables"] as $item) {
             
             // Get clean table name 
             $tableName = $this::cleanToName($item["name"]);
