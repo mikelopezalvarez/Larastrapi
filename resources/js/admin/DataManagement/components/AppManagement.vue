@@ -112,15 +112,28 @@
                         </v-col>
 
                         <v-col class="mb-0 pa-0 hidden-xs-only" sm="5" md="3">
-                         <v-text-field
-                            v-model="table.name"
-                            label="Table Name"
-                            placeholder="Placeholder"
-                            class="mb-0 pa-0"
-                            outlined
-                            dense
-                            hide-details
-                          ></v-text-field>
+                          <template v-if="table.new">
+                            <v-text-field
+                                v-model="table.name"
+                                label="Table Name *new"
+                                placeholder="Placeholder"
+                                class="mb-0 pa-0 "
+                                outlined
+                                dense
+                                hide-details
+                              ></v-text-field>
+                          </template>
+                          <template v-else>
+                            <v-text-field
+                                v-model="table.name"
+                                label="Table Name *old"
+                                placeholder="Placeholder"
+                                class="mb-0 pa-0"
+                                outlined
+                                dense
+                                hide-details
+                              ></v-text-field>
+                          </template>
                           
                         </v-col>
 
@@ -194,32 +207,15 @@
 
 
                               
-
-                              <v-menu
-                                bottom
-                                origin="center center"
-                                transition="scale-transition"
-                              >
-                                <template v-slot:activator="{ on }">
-                                  <v-btn
-                                    color="primary"
-                                    dark
-                                    v-on="on"
-                                  >
-                                  <v-icon v-text="item.icon"></v-icon>
-                                  </v-btn>
-                                </template>
-
-                                <v-list>
-                                  <v-list-item
-                                    v-for="(item, u) in fieldTypes"
-                                    :key="i"
-                                    @click=""
-                                  >
-                                    <v-list-item-title><v-icon v-text="item.icon"></v-icon></v-list-item-title>
-                                  </v-list-item>
-                                </v-list>
-                              </v-menu>
+                              <v-select
+                                v-model="item.type"
+                                :items="fieldTypes"
+                                item-value="type"
+                                label="Solo field"
+                                dense
+                                solo
+                                hide-details
+                              ></v-select>
 
                               <v-btn text icon color="green">
                                 <v-icon>call_split</v-icon>
@@ -233,17 +229,32 @@
                             <v-list-item-content>
                            
                                   <v-col cols="12" sm="12" md="10" class="pa-0">
-                                  <v-text-field 
-                                  
-                                      v-model="item.name"
-                                      :rules="nameRules"
-                                      md="6"
-                                      label="Field Name"
-                                      class="ma-0 pa-0"
-                                      required
-                                      dense 
-                                      hide-details
-                                    ></v-text-field>
+                                     <template v-if="item.new">
+                                      <v-text-field 
+                                      
+                                          v-model="item.name"
+                                          :rules="nameRules"
+                                          md="6"
+                                          label="Field Name *new"
+                                          class="ma-0 pa-0"
+                                          required
+                                          dense 
+                                          hide-details
+                                        ></v-text-field>
+                                     </template>
+                                     <templat v-else>
+                                         <v-text-field 
+                                      
+                                          v-model="item.name"
+                                          :rules="nameRules"
+                                          md="6"
+                                          label="Field Name *old"
+                                          class="ma-0 pa-0"
+                                          required
+                                          dense 
+                                          hide-details
+                                        ></v-text-field>
+                                     </templat>
                                   </v-col>
 
                                   <v-col cols="12" sm="12" md="2" class="pa-0">
@@ -338,7 +349,12 @@
           return {
             menu: false,
             switch1: true,
-            
+            removedTables: [],
+            renamedTables: [],
+            newTables: [],
+            renamedFields: [],
+            removedFields: [],
+            newFields: [],
             appInfo: [],
             beforeApp: {
 
@@ -442,8 +458,8 @@
               { text: 'Double', type: 'double', icon: 'attach_money' },
               { text: 'Image', type: 'string', icon: 'image' },
               { text: 'File', type: 'string', icon: 'insert_drive_file' },
-              { text: 'Date Time', type: 'datetime', icon: 'date_range' },
-              { text: 'Relations', type: 'integer', icon: 'call_split' },
+              { text: 'Date Time', type: 'dateTime', icon: 'date_range' },
+              { text: 'Relations', type: 'bigInteger', icon: 'call_split' },
             ],
           }
         },
@@ -458,25 +474,17 @@
             })
             .then(function (res) {
                 
+                // Get configuration
                 self.app = res.data;
+                // Storage configuration
+                self.beforeApp = JSON.parse(JSON.stringify(res.data));
 
             })
             .catch(function (error) {
                 console.log(error);
             });
 
-             // Storage application object
-            axios.post('/app/getObjectById', {
-                id: this.id,
-            })
-            .then(function (res) {
-
-                self.beforeApp = res.data;
-
-            })
-            .catch(function (error) {
-                console.log(error);
-            });
+           
 
             // Get app information
             axios.post('/app/getInfoById', {
@@ -491,13 +499,19 @@
                 console.log(error);
             });
 
+
+
           },
           addTable(){
             //Prepare Obj
             let obj = {
+                  new: true,
+                  old_name: '',
                   name: '',
                   fields: [
                     {
+                      new: true,
+                      old_name: '',
                       type: 'string',
                       name: '',
                       relation: {
@@ -525,12 +539,19 @@
           },
 
           removeTable(i){
+
+            // Storage dropped tables
+            this.removedTables.push(this.app.tables[i]);
+
+            // Drop table of mean object
             this.app.tables.splice(i, 1) 
             this.menu = false
 
           },
           addField(i){
             let obj = {
+                        new: true, 
+                        old_name: '',
                         type: 'string',
                         name: '',
                         relation: {
@@ -564,28 +585,97 @@
           },
           saveData(){
 
+            var self = this;  
+            // Get Renamed Tables
+            for (var i = 0; i < self.app.tables.length; i++) {
+              if(!self.app.tables[i].new){
+                if(self.app.tables[i].name != self.app.tables[i].old_name){
+                    self.renamedTables.push({
+                        oldName: self.app.tables[i].old_name,
+                        newName: self.app.tables[i].name
+                    });
+                }
+              }
+            }
 
-            // var data = new FormData();
-            // data.append( "app", JSON.stringify( this.app ) );
-            // data.append( "beforeApp", JSON.stringify( this.beforeApp ) );
-            // data.append( "appInfo", JSON.stringify( this.appInfo ) );
+            // Get Renamed Fields
+            for (var i = 0; i < self.app.tables.length; i++) {
+              if(!self.app.tables[i].new){
+
+                for (var e = 0; e < self.app.tables[i].fields.length; e++) {
+                  if(self.app.tables[i].fields[e].name != self.app.tables[i].fields[e].old_name){
+                    self.renamedFields.push({
+                        tablename : self.app.tables[i].name,
+                        oldName   : self.app.tables[i].fields[e].old_name,
+                        newName   : self.app.tables[i].fields[e].name
+                    });
+                  }
+                }
+
+              }
+            }
+
+            // // Get Modified Fields Types
+            // for (var i = 0; i < self.app.tables.length; i++) {
+            //   if(!self.app.tables[i].new){
+
+            //     for (var e = 0; e < self.app.tables[i].fields.length; e++) {
+            //       if(self.app.tables[i].fields[e].name != self.app.tables[i].fields[e].old_name){
+            //         self.renamedFields.push({
+            //             tablename : self.app.tables[i].name,
+            //             oldName   : self.app.tables[i].fields[e].old_name,
+            //             newName   : self.app.tables[i].fields[e].name
+            //         });
+            //       }
+            //     }
+
+            //   }
+            // }
+
+            // Get New Tables to Create
+            for (var i = 0; i < self.app.tables.length; i++) {
+              if(self.app.tables[i].new){
+                self.newTables.push(self.app.tables[i]);
+              }
+            }
+
+            console.log(self.renamedTables);
+
+           
+            
+            var json = JSON.parse(JSON.stringify(self.app));
+            //json.push(self.app);
+
             
 
-            // fetch("/testing",
-            // {
-            //     method: "POST",
-            //     body: data
-            // })
-            // .then(function(res){ 
-            //   return console.log(res);
-            // })
+            //Formatted json to storage as structure column
+            for (var i = 0; i < json.tables.length; i++) {
+                  json.tables[i].new = false;
+                  json.tables[i].old_name = json.tables[i].name;
 
-            var self = this;  
+                  for (var e = 0; e < json.tables[i].fields.length; e++) {
+                    json.tables[i].fields[e].new = false;
+                    json.tables[i].fields[e].old_name = json.tables[i].fields[e].name ;
+                  }
+
+            }
+
+            console.log(json)
+            console.log(self.app)
+
+
             // Create App
             axios.post('/testing', {
                 data: self.appInfo,
                 app: self.app,
                 beforeApp: self.beforeApp,
+                json: json,
+                renamedTables: self.renamedTables,
+                removedTables: self.removedTables,
+                newTables: self.newTables,
+                renamedFields: self.renamedFields,
+                removedFields: self.removedFields,
+                newFields: self.newFields,
                 id: self.id
             })
             .then(function (res) {
@@ -614,6 +704,8 @@
         created(){
 
           this.getApp();
+
+          
 
           
 

@@ -55,7 +55,74 @@ class DataManagementController extends Controller
 
     ];
 
+
+
+
+    private $testBeforeTables = [
+        [
+            "name" => "Products",
+            "fields" => [
+                [
+                    "name" => "Nombre",
+                    "type" => "string"
+                ],
+                [
+                    "name" => "Desc",
+                    "type" => "string"
+                ],
+                [
+                    "name" => "Pito",
+                    "type" => "string"
+                ]
+            ],
+            "users" => [],
+            "active" => true,
+            "options" => [ "get" => true, "add" => true, "del" => true, "upd" => true ]
+        ],
+        [
+            "name" => "Users",
+            "fields" => [],
+            "users" => [],
+            "active" => true,
+            "options" => [ "get" => true, "add" => true, "del" => true, "upd" => true ]
+        ]
+
+    ];
+
+    private $testAfterTables = [
+        [
+            "name" => "Products",
+            "fields" => [
+                [
+                    "name" => "Nombre",
+                    "type" => "string"
+                ],
+                [
+                    "name" => "Desc",
+                    "type" => "double"
+                ],
+                [
+                    "name" => "Costo",
+                    "type" => "double"
+                ],
+            ],
+            "users" => [],
+            "active" => true,
+            "options" => [ "get" => true, "add" => true, "del" => true, "upd" => true ]
+        ],
+        [
+            "name" => "Users",
+            "fields" => [],
+            "users" => [],
+            "active" => true,
+            "options" => [ "get" => true, "add" => true, "del" => true, "upd" => true ]
+        ]
+
+    ];
+
     private $migrationName;
+    private $modifiedTableFields;
+    private $json;
 
     public function saveAppConfiguration(Request $request){
 
@@ -67,85 +134,90 @@ class DataManagementController extends Controller
         $this->id = $request->id;
 
         $this->app = $request->app;
-
         $this->beforeApp = $request->beforeApp;
+        $this->json = $request->json;
 
         // Get tables to remove
-        $this::getTablesToDrop();
-        // Get tables to create
-        $this::getTablesToCreate();
-
-        // Counting to know if create migration or not
-        $migration = 0;
-
-        if($this->removedTables){
-            $migration++;
-        }
-
-        if($this->createTables){
-            $migration++;
-        }
-
-        // If tables dont have changes 
-        if($migration > 0){
-            // Create migration
-            if($this::createMigration() == true){
-            Artisan::call('migrate');
-            }
-        }
-
-        $this::updAppTable();
-
-
-
-        // // Get and decode json data
-        // $app = json_decode($request->app, true);
-        // dd($app);
-        // $beforeApp = json_decode($request->beforeApp, true);
-
-        // // Populate app data
-        // $this->app = $app;
-
-        // // This is the before configuration to compare and remake or update the migration
-        // $this->beforeApp = $beforeApp;
-
-        // //$this->appName = $app["name"];
-
-        // //$this->appNamePath = $this::cleanToName($app["name"]);
-
-        // $this->appActive = $app["name"];
-
-        // $this->appSecurity = $app["security"]["active"];
-
-        // $this->appToken = $app["security"]["token"];
-
-        // $this->app["tables"] = $app["tables"];
-
-
-
-
-
-        
-       // return Artisan::call('migrate');
-       // return Artisan::call('make:migration create_products_table ');
-
-        // Call the Scalffolding Methods to Create all DB Laravel Elements
-        //$this::scalffolding();
-        //$this::createMigration();
-        //if($this::createMigration() == true){
-           // Artisan::call('migrate');
-        //}
-
         // $this::getTablesToDrop();
-
+        // // Get tables to create
         // $this::getTablesToCreate();
 
-        // $this::createMigration();
+        // // Counting to know if create migration or not
+        // $migration = 0;
+
+        // if($this->removedTables){
+        //     $migration++;
+        // }
+
+        // if($this->createTables){
+        //     $migration++;
+        // }
+
+        // // If tables dont have changes 
+        // if($migration > 0){
+        //     // Create migration
+        //     if($this::createMigration() == true){
+        //     Artisan::call('migrate');
+        //     }
+        // }
+
+        //$this::updAppTable();
+
+        //return App::get();
+        
+        // $this::getNewTablesToCreate();
+
+        // dd($this->createTables);
+        
+
+    //    dd($this->modifiedTableFields);
+
+
 
 
 
 
     }
+
+
+    private function getNameTablesChanged(){
+
+        foreach($this->app["tables"] as $item){
+            if($this::verifyTableChanges($item)){
+                $this->modifiedTableFields[] = $this::verifyTableChanges($item);
+            }
+            
+        }
+
+    }
+
+    private function verifyTableChanges($table){
+
+        foreach ($this->beforeApp["tables"] as $item) {
+            
+            if($table["name"] == $item["name"]){
+                //dd($table["fields"]);
+                if(!empty($table["fields"])){
+
+                    if(!empty($item["fields"])){
+
+                        if($table["fields"] != $item["fields"]){
+                            return $item["name"];
+                        }
+
+                    }
+
+                }
+                
+                
+            }
+
+        }
+
+    }
+
+
+    
 
     private function updAppTable(){
         
@@ -153,7 +225,7 @@ class DataManagementController extends Controller
         $app->public = (($this->app["active"]) ? 1 : 0);
         $app->security = (($this->app["security"]["active"]) ? 1 : 0);
         $app->token = $this->app["security"]["token"];
-        $app->structure =  json_encode($this->app);
+        $app->structure =  json_encode($this->json);
 
         $app->save();
     }
@@ -347,6 +419,16 @@ class DataManagementController extends Controller
 
 
     }
+
+    private function getNewTablesToCreate(){
+
+        foreach ($this->app["tables"] as $item){
+            if($item["new"]){
+                $this->createTables[] = $item;
+            }
+        }
+
+    }
     // Method to Get All New Tables Compared with Before Configuration
     private function getTablesToCreate(){
 
@@ -435,6 +517,8 @@ class DataManagementController extends Controller
 
 
     }
+
+    
 
     //Method to Get All Array Table by Name of Table
     private function getTableDetail($name){
