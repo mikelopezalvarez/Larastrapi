@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Artisan;
 use Carbon\Carbon;
+use App\Http\Controllers\Administration\Classes\Migration;
 
 //Models
 use App\App;
@@ -124,6 +125,14 @@ class DataManagementController extends Controller
     private $modifiedTableFields;
     private $json;
 
+    // Variables Received to Create Migration 
+    private $droppedTables;
+    private $newTables;
+    private $changedTables;
+    private $droppedFields;
+    private $renamedFields;
+    private $renamedTables;
+
     public function saveAppConfiguration(Request $request){
 
         // Get and decode json data
@@ -136,6 +145,14 @@ class DataManagementController extends Controller
         $this->app = $request->app;
         $this->beforeApp = $request->beforeApp;
         $this->json = $request->json;
+
+
+        $this->droppedTables = $request->droppedTables;     // Tables Array
+        $this->newTables = $request->newTables;             // Tables Array
+        $this->changedTables = $request->changedTables;     // Tables Array
+        $this->droppedFields = $request->droppedFields;     // [{name,type}]
+        $this->renamedFields = $request->renamedFields;     // [{tableName,oldName,newName}]
+        $this->renamedTables = $request->renamedTables;     // [{oldName,newName}]
 
         // Get tables to remove
         // $this::getTablesToDrop();
@@ -171,11 +188,192 @@ class DataManagementController extends Controller
         
 
     //    dd($this->modifiedTableFields);
+        
+    
+        $this::dropAndCreateTables();
+        $this::changedExistingTables();
+        $this::droppedFields();
+        $this::renamedTablesElements();
+
+        
+
+        if($this::updAppTable() > 0){
+            Artisan::call('migrate');
+        }
 
 
 
 
 
+    }
+
+    // Method to Drop and Create Tables Migration
+    private function dropAndCreateTables(){
+        
+        $migration = new Migration($this::genPrefix(10));
+        $save = 0;
+
+        // Prepare Dropped Tables
+        if($this->droppedTables){
+            $save++;
+            foreach($this->droppedTables as $item){
+
+                $migration->up('Schema::dropIfExists("'.$item["name"].'"); ');
+
+                $migration->down($this::prepareTableBlueprint($item));
+
+            }
+        }
+        // Prepare New Tables 
+        if($this->newTables){
+            $save++;
+            foreach($this->newTables as $item){
+
+
+                $migration->up($this::prepareTableBlueprint($item));
+
+                $migration->down("\t\t" . 'Schema::dropIfExists("'.$item["name"].'"); ');
+
+            }
+        }
+        // If Exist Dropped pr New Tables 
+        if($save > 0){
+            $migration->save();
+        }
+        
+
+
+    }
+
+    private function changedExistingTables(){
+
+        if($this->changedTables){
+
+
+            $migration = new Migration($this::genPrefix(10));
+
+            foreach($this->changedTables as $item){
+
+                $migration->up($this::prepareTableBlueprint($item));
+
+                $migration->down("\t\t" . 'Schema::dropIfExists("'.$item["name"].'"); ');
+    
+            }
+
+
+            $migration->save();
+
+
+        }
+        
+    }
+
+    private function droppedFields(){
+
+        $migration = new Migration($this::genPrefix(10));
+
+        if($this->droppedFields){
+
+        
+            foreach($this->droppedFields as $item){
+
+
+                $migration->up($this::prepareBlueprintDroppedColumn($item, 'up'));
+
+                $migration->down($this::prepareBlueprintDroppedColumn($item, 'down'));
+
+            }
+
+            $migration->save();
+
+        }
+        
+    }
+
+
+
+    private function renamedTablesElements(){
+
+        $migration = new Migration($this::genPrefix(10));
+        $save = 0;
+        foreach($this->renamedFields as $item){
+            $save++;
+            $migration->up($this::prepareBlueprintFieldRename($item, 'up'));
+
+            $migration->down($this::prepareBlueprintFieldRename($item, 'down'));
+
+        }
+
+        foreach($this->renamedTables as $item){
+
+            $save++;
+            $migration->up("\t\t" . 'Schema::rename("'.$item["oldName"].'", "'.$item["newName"].'"); ');
+
+            $migration->down("\t\t" . 'Schema::rename("'.$item["newName"].'", "'.$item["oldName"].'"); ');
+
+        }
+
+        if($save > 0){
+            $migration->save();
+        }
+
+    }
+
+    private function prepareBlueprintDroppedColumn($item, $type){
+
+        $tableName = $this::cleanToName($item["tableName"]);
+        $name = $this::cleanToName($item["field"]["name"]);
+        $fieldType = $item["field"]["type"];
+
+        if($type == 'up'){ 
+
+            $res = "\t\t\t" . 'Schema::table("'.$tableName.'", function(Blueprint $t){ ' . PHP_EOL;
+            $res .= "\t\t\t\t" . '$t->dropColumn("'.$name.'"); ' . PHP_EOL;
+            $res .= "\t\t\t" . '}); ' . PHP_EOL . PHP_EOL;
+    
+
+        }else{
+
+
+            $res = "\t\t\t" . 'Schema::table("'.$tableName.'", function(Blueprint $t){ ' . PHP_EOL;
+            $res .= "\t\t\t\t" . '$t->'.$fieldType.'("'.$name.'")->nullable(); ' . PHP_EOL;
+            $res .= "\t\t\t" . '}); ' . PHP_EOL . PHP_EOL;
+           
+
+        }
+
+        return $res;
+ 
+
+    }
+
+    private function prepareBlueprintFieldRename($item, $type){
+
+        $tableName = $this::cleanToName($item["tableName"]);
+        $oldName = $this::cleanToName($item["oldName"]);
+        $newName = $this::cleanToName($item["newName"]);
+
+        if($type == 'up'){
+
+
+            $res = "\t\t\t" . 'Schema::table("'.$tableName.'", function(Blueprint $t){ ' . PHP_EOL;
+            $res .= "\t\t\t\t" . '$t->renameColumn("'.$oldName.'", "'.$newName.'"); ' . PHP_EOL;
+            $res .= "\t\t\t" . '}); ' . PHP_EOL . PHP_EOL;
+    
+         
+
+        }else{
+
+
+            $res = "\t\t\t" . 'Schema::table("'.$tableName.'", function(Blueprint $t){ ' . PHP_EOL;
+            $res .= "\t\t\t\t" . '$t->renameColumn("'.$newName.'", "'.$oldName.'"); ' . PHP_EOL;
+            $res .= "\t\t\t" . '}); ' . PHP_EOL . PHP_EOL;
+    
+
+        }
+
+        return $res;
+ 
 
     }
 
@@ -227,7 +425,9 @@ class DataManagementController extends Controller
         $app->token = $this->app["security"]["token"];
         $app->structure =  json_encode($this->json);
 
-        $app->save();
+        $result = $app->save();
+
+        return $result;
     }
 
     

@@ -264,7 +264,7 @@
                                           v-model="icon"
                                           borderless
                                         >
-                                          <v-btn  small value="left" color="red lighten-4" @click="removeField(i, u)">
+                                          <v-btn  small value="left" color="red lighten-4" @click="removeField(i, e)">
                                             <span class="hidden-sm-and-down">Remove</span>
 
                                             <v-icon right>clear</v-icon> 
@@ -349,11 +349,12 @@
           return {
             menu: false,
             switch1: true,
-            removedTables: [],
-            renamedTables: [],
+            droppedTables: [],
             newTables: [],
+            changedTables: [],
+            droppedFields: [],
+            renamedTables: [],
             renamedFields: [],
-            removedFields: [],
             newFields: [],
             appInfo: [],
             beforeApp: {
@@ -540,8 +541,10 @@
 
           removeTable(i){
 
-            // Storage dropped tables
-            this.removedTables.push(this.app.tables[i]);
+            if(!this.app.tables[i].new){
+              // Storage dropped tables
+              this.droppedTables.push(this.app.tables[i]);
+            }
 
             // Drop table of mean object
             this.app.tables.splice(i, 1) 
@@ -568,8 +571,19 @@
           },
            removeField(t, f){
             if(this.app.tables[t].fields.length > 1){
+                if(!this.app.tables[t].fields[f].new){
+                   this.droppedFields.push(
+                     {
+                       tableName: this.app.tables[t].name,
+                       field: JSON.parse(JSON.stringify(this.app.tables[t].fields[f]))
+                     }
+                   );
+                }
+               
                 this.app.tables[t].fields.splice(f, 1) 
-                this.menu2 = false
+                this.menu2 = false;
+
+
             }
 
           },
@@ -605,7 +619,7 @@
                 for (var e = 0; e < self.app.tables[i].fields.length; e++) {
                   if(self.app.tables[i].fields[e].name != self.app.tables[i].fields[e].old_name){
                     self.renamedFields.push({
-                        tablename : self.app.tables[i].name,
+                        tableName : self.app.tables[i].name,
                         oldName   : self.app.tables[i].fields[e].old_name,
                         newName   : self.app.tables[i].fields[e].name
                     });
@@ -632,10 +646,18 @@
             //   }
             // }
 
-            // Get New Tables to Create
+            // Get new tables to create 
             for (var i = 0; i < self.app.tables.length; i++) {
               if(self.app.tables[i].new){
-                self.newTables.push(self.app.tables[i]);
+                self.newTables.push(JSON.parse(JSON.stringify(self.app.tables[i])));
+              }
+            }
+
+            // Get changed tables
+            for (var i = 0; i < self.app.tables.length; i++) {
+              if(!self.app.tables[i].new){
+                //alert(self.app.tables[i].new);
+                self.changedTables.push(JSON.parse(JSON.stringify(self.app.tables[i])));
               }
             }
 
@@ -671,11 +693,12 @@
                 beforeApp: self.beforeApp,
                 json: json,
                 renamedTables: self.renamedTables,
-                removedTables: self.removedTables,
+                droppedTables: self.droppedTables,
                 newTables: self.newTables,
+                changedTables: self.changedTables,
                 renamedFields: self.renamedFields,
-                removedFields: self.removedFields,
-                newFields: self.newFields,
+                droppedFields: self.droppedFields,
+                //newFields: self.newFields,
                 id: self.id
             })
             .then(function (res) {
