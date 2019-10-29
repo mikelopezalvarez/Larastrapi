@@ -12,6 +12,7 @@ use Carbon\Carbon;
 // My Libraries
 use App\Http\Controllers\Administration\Classes\MikeMigration;
 use App\Http\Controllers\Administration\Classes\MikeController;
+use App\Http\Controllers\Administration\Classes\MikeModel;
 
 //Models
 use App\App;
@@ -150,7 +151,7 @@ class DataManagementController extends Controller
         
         foreach ($this->app["tables"] as $item) {
 
-            $controller = new MikeController( $this->appNamePath, $this::cleanToName($item["name"]), $item );
+            $controller = new MikeModel( $this->appNamePath, $this::cleanToName($item["name"]), $item );
             $controller->scaffolding();
         
         }
@@ -174,6 +175,14 @@ class DataManagementController extends Controller
                 $migration->up("\t\t" . 'Schema::dropIfExists("'.$item["name"].'"); ');
 
                 $migration->down($this::prepareTableBlueprint($item));
+
+                
+                // Delete Model
+                //...
+                // Delete Controller
+                Storage::disk('controllers')->delete($this->appNamePath.'/'.$item["name"].'Controller.php');
+                // Delete Routes
+                //...
 
             }
         }
