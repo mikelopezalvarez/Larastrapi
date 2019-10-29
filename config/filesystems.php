@@ -66,16 +66,16 @@ return [
 
         'controllers' => [
             'driver' => 'local',
-            'root' => base_path() . '/app/Http/Controllers/Larastrapi',
+            'root' => base_path() . '/app/Http/Controllers/Octapi',
         ],
 
         'models' => [
             'driver' => 'local',
-            'root' => base_path() . '/app/Components/Larastrapi/Models',
+            'root' => base_path() . '/app/Components/Octapi/Models',
         ],
         'routes' => [
             'driver' => 'local',
-            'root' => base_path() . '/routes/Larastrapi',
+            'root' => base_path() . '/routes/Octapi',
         ],
         'routes_append' => [
             'driver' => 'local',

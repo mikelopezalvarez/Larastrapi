@@ -2,146 +2,122 @@
 
 namespace App\Http\Controllers\Administration;
 
+// Other Libraries
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Artisan;
 use Carbon\Carbon;
-use App\Http\Controllers\Administration\Classes\Migration;
+
+// My Libraries
+use App\Http\Controllers\Administration\Classes\MikeMigration;
+use App\Http\Controllers\Administration\Classes\MikeController;
 
 //Models
 use App\App;
 
 class DataManagementController extends Controller
 {
+    /*
+        @array
+    */
     private $beforeApp;
-
+    /*
+        @array
+    */
     private $beforeTabComp;
-
+    /*
+        @array
+    */
     private $afterTabComp;
-
+    /*
+        @array
+    */
     private $removedTables;
-
+    /*
+        @array
+    */
     private $createTables;
-
+    /*
+        @array
+    */
     private $app;
-    
-    private $appName = 'Seguros Multiples$&$34534523';
-    
+    /*
+        @string
+    */
+    private $appName;
+    /*
+        @string
+    */
     private $appNamePath;
-    
+    /*
+        @integer
+    */
     private $appActive;
-
+    /*
+        @string
+    */
     private $appSecurity;
-
+    /*
+        @string
+    */
     private $appToken;
-
+    /*
+        @integer
+    */
     private $id;
-
-    private $tables = [
-            [
-                "name" => "Products",
-                "fields" => [],
-                "users" => [],
-                "active" => true,
-                "options" => [ "get" => true, "add" => true, "del" => true, "upd" => true ]
-            ],
-            [
-                "name" => "Users",
-                "fields" => [],
-                "users" => [],
-                "active" => true,
-                "options" => [ "get" => true, "add" => true, "del" => true, "upd" => true ]
-            ]
-
-    ];
-
-
-
-
-    private $testBeforeTables = [
-        [
-            "name" => "Products",
-            "fields" => [
-                [
-                    "name" => "Nombre",
-                    "type" => "string"
-                ],
-                [
-                    "name" => "Desc",
-                    "type" => "string"
-                ],
-                [
-                    "name" => "Pito",
-                    "type" => "string"
-                ]
-            ],
-            "users" => [],
-            "active" => true,
-            "options" => [ "get" => true, "add" => true, "del" => true, "upd" => true ]
-        ],
-        [
-            "name" => "Users",
-            "fields" => [],
-            "users" => [],
-            "active" => true,
-            "options" => [ "get" => true, "add" => true, "del" => true, "upd" => true ]
-        ]
-
-    ];
-
-    private $testAfterTables = [
-        [
-            "name" => "Products",
-            "fields" => [
-                [
-                    "name" => "Nombre",
-                    "type" => "string"
-                ],
-                [
-                    "name" => "Desc",
-                    "type" => "double"
-                ],
-                [
-                    "name" => "Costo",
-                    "type" => "double"
-                ],
-            ],
-            "users" => [],
-            "active" => true,
-            "options" => [ "get" => true, "add" => true, "del" => true, "upd" => true ]
-        ],
-        [
-            "name" => "Users",
-            "fields" => [],
-            "users" => [],
-            "active" => true,
-            "options" => [ "get" => true, "add" => true, "del" => true, "upd" => true ]
-        ]
-
-    ];
-
+    /*
+        @array
+    */
+    private $tables;
+    /*
+        @string
+    */
     private $migrationName;
+    /*
+        @array
+    */
     private $modifiedTableFields;
+    /*
+        @array
+    */
     private $json;
-
-    // Variables Received to Create Migration 
+    /*
+        @array
+    */
     private $droppedTables;
+     /*
+        @array
+    */
     private $newTables;
+     /*
+        @array
+    */
     private $changedTables;
+     /*
+        @array
+    */
     private $droppedFields;
+     /*
+        @array
+    */
     private $renamedFields;
+     /*
+        @array
+    */
     private $renamedTables;
 
     public function saveAppConfiguration(Request $request){
 
         // Get and decode json data
         $data = $request->data;
-        $this->appName = $data["name"]; //Save App Name
-        $this->appNamePath = $data["alias"]; //Save Folder Name
-
+        // Storage app name
+        $this->appName = $data["name"]; 
+        // Storage folder name
+        $this->appNamePath = $data["alias"]; 
+        // Get app id
         $this->id = $request->id;
-
+        // Storage all arrays elements to run the save config
         $this->app = $request->app;
         $this->beforeApp = $request->beforeApp;
         $this->json = $request->json;
@@ -154,54 +130,31 @@ class DataManagementController extends Controller
         $this->renamedFields = $request->renamedFields;     // [{tableName,oldName,newName}]
         $this->renamedTables = $request->renamedTables;     // [{oldName,newName}]
 
-        // Get tables to remove
-        // $this::getTablesToDrop();
-        // // Get tables to create
-        // $this::getTablesToCreate();
-
-        // // Counting to know if create migration or not
-        // $migration = 0;
-
-        // if($this->removedTables){
-        //     $migration++;
-        // }
-
-        // if($this->createTables){
-        //     $migration++;
-        // }
-
-        // // If tables dont have changes 
-        // if($migration > 0){
-        //     // Create migration
-        //     if($this::createMigration() == true){
-        //     Artisan::call('migrate');
-        //     }
-        // }
-
-        //$this::updAppTable();
-
-        //return App::get();
+       
         
-        // $this::getNewTablesToCreate();
-
-        // dd($this->createTables);
-        
-
-    //    dd($this->modifiedTableFields);
-        
-    
+        // Create Migration to drop old tables and create new tables
         $this::dropAndCreateTables();
+        // Create Migration to editing existing tables
         $this::changedExistingTables();
+        // Create Migration to drop all columns of all tables
         $this::droppedFields();
+        // Create Migration to renamed old fields and tables
         $this::renamedTablesElements();
 
         
-
+        // Update app structure and then run the migrations created
         if($this::updAppTable() > 0){
             Artisan::call('migrate');
         }
 
+        
+        foreach ($this->app["tables"] as $item) {
 
+            $controller = new MikeController( $this->appNamePath, $this::cleanToName($item["name"]), $item );
+            $controller->scaffolding();
+        
+        }
+       
 
 
 
@@ -210,7 +163,7 @@ class DataManagementController extends Controller
     // Method to Drop and Create Tables Migration
     private function dropAndCreateTables(){
         
-        $migration = new Migration($this::genPrefix(10));
+        $migration = new MikeMigration($this::genPrefix(10));
         $save = 0;
 
         // Prepare Dropped Tables
@@ -218,7 +171,7 @@ class DataManagementController extends Controller
             $save++;
             foreach($this->droppedTables as $item){
 
-                $migration->up('Schema::dropIfExists("'.$item["name"].'"); ');
+                $migration->up("\t\t" . 'Schema::dropIfExists("'.$item["name"].'"); ');
 
                 $migration->down($this::prepareTableBlueprint($item));
 
@@ -250,7 +203,7 @@ class DataManagementController extends Controller
         if($this->changedTables){
 
 
-            $migration = new Migration($this::genPrefix(10));
+            $migration = new MikeMigration($this::genPrefix(10));
 
             foreach($this->changedTables as $item){
 
@@ -270,7 +223,7 @@ class DataManagementController extends Controller
 
     private function droppedFields(){
 
-        $migration = new Migration($this::genPrefix(10));
+        $migration = new MikeMigration($this::genPrefix(10));
 
         if($this->droppedFields){
 
@@ -294,7 +247,7 @@ class DataManagementController extends Controller
 
     private function renamedTablesElements(){
 
-        $migration = new Migration($this::genPrefix(10));
+        $migration = new MikeMigration($this::genPrefix(10));
         $save = 0;
         foreach($this->renamedFields as $item){
             $save++;
@@ -378,45 +331,9 @@ class DataManagementController extends Controller
     }
 
 
-    private function getNameTablesChanged(){
-
-        foreach($this->app["tables"] as $item){
-            if($this::verifyTableChanges($item)){
-                $this->modifiedTableFields[] = $this::verifyTableChanges($item);
-            }
-            
-        }
-
-    }
-
-    private function verifyTableChanges($table){
-
-        foreach ($this->beforeApp["tables"] as $item) {
-            
-            if($table["name"] == $item["name"]){
-                //dd($table["fields"]);
-                if(!empty($table["fields"])){
-
-                    if(!empty($item["fields"])){
-
-                        if($table["fields"] != $item["fields"]){
-                            return $item["name"];
-                        }
-
-                    }
-
-                }
-                
-                
-            }
-
-        }
-
-    }
-
 
     
-
+    // Method to Update App Table
     private function updAppTable(){
         
         $app = App::find($this->id);
@@ -438,6 +355,7 @@ class DataManagementController extends Controller
         return substr(implode($word), 0, $len);
     }
 
+    // Method to Create App
     public function createApp(Request $request){
 
         // Get and decode json data
@@ -489,96 +407,6 @@ class DataManagementController extends Controller
 
     }
 
-    private function createAppScalffolding(){
-
-        // Get all tables to Drop
-        $this::getTablesToDrop();
-
-        // Get all tables to Create
-        $this::getTablesToCreate();
-
-        // Make:Migration
-        if($this::createMigration() == true){
-            Artisan::call('migrate');
-        }
-
-        // Make:Controllers
-        if($this::createAppControllerFolder() == true){
-            foreach ($this->app["tables"] as $item) {
-                $this::createController($item);
-            }
-        }
-
-        // Make:Models
-        if($this::createAppModelFolder() == true){
-            foreach ($this->app["tables"] as $item) {
-                $this::createModel($item);
-            }
-        }
-
-        // Make:Routes
-        if($this::createAppRoutesFolder() == true){
-            $this::registerRoutes();
-        }
-
-    }
-
-    private function createMigration(){
-        
-        $dropIfExist = '';
-
-        // Init var to create migration file content
-        $res = '<?php' . PHP_EOL;
-        // Include the neccesary class
-        $res .= 'use Illuminate\Support\Facades\Schema; ' . PHP_EOL;
-        $res .= 'use Illuminate\Database\Schema\Blueprint;' . PHP_EOL;
-        $res .= 'use Illuminate\Database\Migrations\Migration;' . PHP_EOL . PHP_EOL;
-        // Name of class
-        $res .= 'class AutomaticProcessor extends Migration' . PHP_EOL;
-        $res .= '{'. PHP_EOL . PHP_EOL . PHP_EOL;
-
-        $res .= "\t" . 'public function up(){'. PHP_EOL . PHP_EOL;
-
-        // Verify if exist table to removed to add drop in up method of migration
-        if ($this->removedTables) {
-            $res .= "\t\t" . '// All Tables to Remove' . PHP_EOL;
-            foreach ($this->removedTables as $item) {
-                $res .= "\t\t" . 'Schema::dropIfExists("'.$item.'");' . PHP_EOL;
-            }
-        }
-
-        $res .= PHP_EOL;
-        $res .= "\t\t" . '// All Tables to Create' . PHP_EOL;
-        // Create the new tables in up method of migration
-        if ($this->createTables) {
-            // Foreach to prepare each table
-            foreach ($this->createTables as $item) {
-
-                $res .= $this::prepareTableBlueprint($item);
-
-                $dropIfExist .= "\t\t" . 'Schema::dropIfExists("'.$this::cleanToName($item["name"]).'");' . PHP_EOL;
-
-            }
-        }
-        
-        $res .= "\t" . '}'. PHP_EOL . PHP_EOL . PHP_EOL;
-        $res .=  "\t" . 'public function down(){'. PHP_EOL . PHP_EOL ;
-        
-        $res .= $dropIfExist . PHP_EOL;
-
-        $res .=  "\t" . '}'. PHP_EOL . PHP_EOL . PHP_EOL;
-        $res .= '}';
-
-        // Save the name of migration in prop (0000_00_00_000000_automatic_processor.php)
-        $this->migrationName = date('Y_m_d_'.Carbon::now()->format('His'),time()) . "_automatic_processor.php";
-
-        // Create migration in database/migrations
-        return Storage::disk('migration')->put($this->migrationName, $res);
-        
-        //dd(Storage::disk("migration")->get($this->migrationName));
-        
-    } 
-
 
     private function prepareTableBlueprint($table){
 
@@ -620,58 +448,8 @@ class DataManagementController extends Controller
 
     }
 
-    private function getNewTablesToCreate(){
-
-        foreach ($this->app["tables"] as $item){
-            if($item["new"]){
-                $this->createTables[] = $item;
-            }
-        }
-
-    }
-    // Method to Get All New Tables Compared with Before Configuration
-    private function getTablesToCreate(){
-
-        // if($this->beforeApp["tables"]){
-            // Foreach to store all table name of before config
-            foreach ($this->beforeApp["tables"] as $item) {
-
-                $beforeTabComp[] = $item["name"];
-
-            }
-            
-            // Foreach to store all table name of new config
-            foreach ($this->app["tables"] as $item) {
-
-                $afterTabComp[] = $item["name"];
-                
-
-            }
-           
-
-            // Store the array with new tables names
-            $newTablesNames = array_diff($afterTabComp,$beforeTabComp);
-            
-        
-
-            // Foreach to get the detail of all new tables
-            foreach ($newTablesNames as $item) {
-
-                $this->createTables[] = $this::getTableDetail($item);
-
-
-            }
-
-            // Return new tables info
-            return $this->createTables;
-
-        // }else{
-
-        //     $this->createTables = $this->app["tables"];
-        //     return $this->createTables;
-        // }
-
-    }
+  
+    
 
     private function getFieldsToCreate(){
 
@@ -736,43 +514,7 @@ class DataManagementController extends Controller
 
     }
 
-    private function ifTableIsExistInNewApp($name){
-
-
-        foreach ($this->app["tables"] as $item) {
-
-            if ($item["name"] == $name){
-                return true;
-            }else{
-                return false;
-            }
-
-        }
-
-    }
-
-    private function getTablesToDrop(){
-
-        if($this->beforeApp["tables"]){
-            // Foreach to store all table name of before config
-            foreach ($this->beforeApp["tables"] as $item) {
-
-                if($this::ifTableIsExistInNewApp($item["name"]) == false){
-                    $this->removedTables[] = $this::cleanToName($item["name"]);
-                }
-
-            }
-
-            // Return removed tables info
-            return  $this->removedTables;
-        }else{
-
-            $this->removedTables = [];
-
-            return $this->removedTables;
-        }
-
-    }
+   
 
     // Method to clean App Name to Remove Special Character and Numbers
     public function cleanToName($name){

@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Artisan;
 use Carbon\Carbon;
 use App\App;
 
-class Migration 
+class MikeMigration 
 {
     
     private $header;
@@ -73,7 +73,7 @@ class Migration
     // Method to create file migration database/migrations/
     public function save(){
 
-        // Save the name of migration in prop (0000_00_00_000000_automatic_processor.php)
+        // Save the name of migration in prop (0000_00_00_000000_prefix.php)
         $this->migrationName = date('Y_m_d_'.Carbon::now()->format('His'),time()) . "_". $this->prefixFileName .".php";
 
         $this->document = $this->header;

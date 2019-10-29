@@ -14,13 +14,12 @@
           <v-card-text>
             <!--<div>Word of the Day</div>-->
             <p class="display-1 text--primary">
-              {{ app.name }}
+              {{ appInfo.name }}
                
             </p>
             <div class="text--primary">
-              {{ app.descrip }}            
+              {{ appInfo.app_description }}            
             </div>
-            <p>Status</p>
             <v-switch
               v-model="app.active"
               color="success"
@@ -361,65 +360,13 @@
 
             },
             app: {
-               name: "Mi Primera App",
+               name: "",
                active: true,
                security: {
                  active: false,
                  token: 'HIoidw98sw5548hgy7gouiiwqhUHGFUYhsd',
                },
-               tables: [
-                 
-                  {
-                    name: 'Productos',
-                    fields: [
-                      {
-                        type: 'string',
-                        name: 'Nombre',
-                        relation: {
-                          active: false,
-                          table: '',
-                          field: '',
-                          type: '',
-                        },
-                        icon: 'text_format',
-
-                      }
-                    ],
-                    users: [],
-                    active: true,
-                    options: {
-                      get: true,
-                      add: true,
-                      del: true,
-                      upd: true
-                    }
-                  },
-                  {
-                    name: 'Clientes',
-                    fields: [
-                      {
-                        type: 'string',
-                        name: 'Nombre',
-                        relation: {
-                          active: false,
-                          table: '',
-                          field: '',
-                          type: '',
-                        },
-                        icon: 'text_format',
-
-                      }
-                    ],
-                    users: [],
-                    active: true,
-                    options: {
-                      get: true,
-                      add: true,
-                      del: true,
-                      upd: true
-                    }
-                  }
-               ]
+               tables: []
              },
              messages: [
               {
