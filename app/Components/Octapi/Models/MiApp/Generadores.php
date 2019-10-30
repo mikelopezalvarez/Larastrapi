@@ -2,12 +2,12 @@
 namespace App\Components\Octapi\Models\MiApp;
 
 use Illuminate\Database\Eloquent\Model; 
-class Ventas extends Model
+class Generadores extends Model
 {
 
 
 
-	protected $table = "Ventas"; 
+	protected $table = "Generadores"; 
 
 	protected $fillable = ["id","name"];
 } 

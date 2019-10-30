@@ -13,6 +13,9 @@ use Carbon\Carbon;
 use App\Http\Controllers\Administration\Classes\MikeMigration;
 use App\Http\Controllers\Administration\Classes\MikeController;
 use App\Http\Controllers\Administration\Classes\MikeModel;
+use App\Http\Controllers\Administration\Classes\MikeRoute;
+
+
 
 //Models
 use App\App;
@@ -148,11 +151,27 @@ class DataManagementController extends Controller
             Artisan::call('migrate');
         }
 
+        // Remove Old Controllers
+        $removeControllers =  Storage::disk('controllers')->allFiles($this->appNamePath);
+        Storage::disk('controllers')->delete($removeControllers);
+        // Remove Old Models
+        $removeModels =  Storage::disk('models')->allFiles($this->appNamePath);
+        Storage::disk('models')->delete($removeModels);
+        // Remove Old Routes
+        $removeRoutes =  Storage::disk('routes')->allFiles($this->appNamePath);
+        Storage::disk('routes')->delete($removeRoutes);
+
         
         foreach ($this->app["tables"] as $item) {
 
-            $controller = new MikeModel( $this->appNamePath, $this::cleanToName($item["name"]), $item );
-            $controller->scaffolding();
+            $controller = new MikeController( $this->appNamePath, $this::cleanToName($item["name"]), $item );
+            $controller->save();
+
+            $method = new MikeModel( $this->appNamePath, $this::cleanToName($item["name"]), $item );
+            $method->save();
+            
+            $route = new MikeRoute( $this->appNamePath, $this::cleanToName($item["name"]), $item );
+            $route->save();
         
         }
        
@@ -178,7 +197,7 @@ class DataManagementController extends Controller
 
                 
                 // Delete Model
-                //...
+                Storage::disk('models')->delete($this->appNamePath.'/'.$item["name"].'.php');
                 // Delete Controller
                 Storage::disk('controllers')->delete($this->appNamePath.'/'.$item["name"].'Controller.php');
                 // Delete Routes

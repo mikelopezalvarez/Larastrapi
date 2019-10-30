@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Artisan;
 use Carbon\Carbon;
 use App\App;
 
+use App\Http\Controllers\Administration\Classes\MethodsInterface;
+
 class MikeController 
 {
     public $table;
@@ -39,11 +41,11 @@ class MikeController
 
         $this->header = '<?php' . PHP_EOL;
         // Include the neccesary class
-        $this->header .= 'namespace App\Http\Controllers\Octapi; ' . PHP_EOL . PHP_EOL;
+        $this->header .= 'namespace App\Http\Controllers\Octapi' . '\\' . $this->appNamePath . ";" . PHP_EOL . PHP_EOL;
         $this->header .= 'use Illuminate\Http\Request; ' . PHP_EOL;
         $this->header .= 'use App\Http\Controllers\Controller; ' . PHP_EOL;
         $this->header .= 'use Carbon\Carbon; ' . PHP_EOL . PHP_EOL;
-        $this->header .= 'use App\Octapi' . '\\' . $this->appNamePath . '\\' . $this->modelName . PHP_EOL . PHP_EOL;
+        $this->header .= 'use App\Octapi' . '\\' . $this->appNamePath . '\\' . $this->modelName . ";". PHP_EOL . PHP_EOL;
         // Name of class
         $this->header .= 'class '.$this->modelName.'Controller extends Controller' . PHP_EOL;
         $this->header .= '{'. PHP_EOL . PHP_EOL . PHP_EOL;
@@ -61,14 +63,38 @@ class MikeController
 
     }
 
+    // Method to create file 
+    public function save(){
+
+        $methods = new MethodsInterface($this->modelName, $this->table);
+
+        foreach ($methods->interface as $item){
+        
+            $this::appendMethod($item["function"]);
+        }
+
+        $this->document = $this->header;
+
+        $this->document.= $this->methods;
+
+        $this->document.= $this->footer;
+        
+      
+
+        // Return a boolean to process completed
+        return Storage::disk('controllers')->put($this->appNamePath.'/'.$this->tableName."Controller.php",  $this->document);
+
+    }
+
 
     public function scaffolding(){
 
-        $this::appendMethod($this::get());
-        $this::appendMethod($this::find());
-        $this::appendMethod($this::delete());
-        $this::appendMethod($this::update());
-        $this::appendMethod($this::create());
+        $methods = new MethodsInterface($this->modelName, $this->table);
+
+        foreach ($methods->interface as $item){
+        
+            $this::appendMethod($item["function"]);
+        }
 
         $this::save();
 
@@ -171,21 +197,7 @@ class MikeController
 
     
 
-    // Method to create file 
-    public function save(){
-
-        $this->document = $this->header;
-
-        $this->document.= $this->methods;
-
-        $this->document.= $this->footer;
-        
-      
-
-        // Return a boolean to process completed
-        return Storage::disk('controllers')->put($this->appNamePath.'/'.$this->tableName."Controller.php",  $this->document);
-
-    }
+    
 
     
 }

@@ -71,7 +71,7 @@ return [
 
         'models' => [
             'driver' => 'local',
-            'root' => base_path() . '/app/Components/Octapi/Models',
+            'root' => base_path() . '/app/Octapi',
         ],
         'routes' => [
             'driver' => 'local',
@@ -79,7 +79,7 @@ return [
         ],
         'routes_append' => [
             'driver' => 'local',
-            'root' => base_path() . '/routes',
+            'root' => base_path() . '/routes/Octapi',
         ],
         'migration' => [
             'driver' => 'local',

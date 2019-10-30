@@ -10,7 +10,7 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-
+require_once "Routes.php"; 
 require_once "routesAPI.php";
 
 
@@ -43,6 +43,8 @@ Route::prefix('admin')->namespace('Admin')->middleware(['auth','demo'])->group(f
     Route::resource('files','FileController');
     Route::resource('file-groups','FileGroupController');
 });
+
+
 
 
 

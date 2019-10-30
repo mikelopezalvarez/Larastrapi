@@ -43,7 +43,7 @@ class MikeModel
 
         $this->header = '<?php' . PHP_EOL;
         // Include the neccesary class
-        $this->header .= 'namespace App\Components\Octapi\Models' . '\\' . $this->appNamePath . ';' . PHP_EOL . PHP_EOL;
+        $this->header .= 'namespace App\Octapi' . '\\' . $this->appNamePath . ';' . PHP_EOL . PHP_EOL;
         $this->header .= 'use Illuminate\Database\Eloquent\Model; ' . PHP_EOL;
         // Name of class
         $this->header .= 'class '.$this->modelName.' extends Model' . PHP_EOL;
@@ -98,9 +98,6 @@ class MikeModel
 
     public function scaffolding(){
 
-        $this::setTable($this->tableName);
-
-        $this::setFields();
 
         $this::save();
 
@@ -112,6 +109,10 @@ class MikeModel
 
     // Method to create file 
     public function save(){
+
+        $this::setTable($this->modelName);
+
+        $this::setFields();
 
         $this->document = $this->header;
 

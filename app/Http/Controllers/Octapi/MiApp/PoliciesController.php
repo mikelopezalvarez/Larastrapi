@@ -1,44 +1,48 @@
 <?php
-namespace App\Http\Controllers\Octapi; 
+namespace App\Http\Controllers\Octapi\MiApp;
 
 use Illuminate\Http\Request; 
 use App\Http\Controllers\Controller; 
 use Carbon\Carbon; 
 
-use App\Octapi\MiApp\Ventas
+use App\Octapi\MiApp\Policies;
 
-class VentasController extends Controller
+class PoliciesController extends Controller
 {
 
 
 
 		public function get(){ 
-			return Ventas::get(); 
+			return Policies::get(); 
 		} 
 
 
 		public function find(Request $request){ 
-			return Ventas::find($request->id); 
+			return Policies::find($request->id); 
 		} 
 
 
 		public function delete(Request $request){ 
-			$e = Ventas::find($request->id); 
+			$e = Policies::find($request->id); 
 			return $e->delete(); 
 		} 
 
 
 		public function update(Request $request){ 
-			$e = Ventas::find($request->id); 
+			$e = Policies::find($request->id); 
 			$e->name = $request->name; 
+			$e->number = $request->number; 
+			$e->eff_date = $request->eff_date; 
 			$result = $e->save(); 
 			return $result; 
 		} 
 
 
 		public function create(Request $request){ 
-			$e = new Ventas; 
+			$e = new Policies; 
 			$e->name = $request->name; 
+			$e->number = $request->number; 
+			$e->eff_date = $request->eff_date; 
 			if($e->save()){ 
 				return response()->json(["success" => true, "id" => $e->id]); 
 			}else{ 
