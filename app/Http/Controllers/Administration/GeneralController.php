@@ -9,11 +9,11 @@ use Illuminate\Support\Facades\Artisan;
 use Carbon\Carbon;
 use App\App;
 
-class AppController extends Controller
+class GeneralController extends Controller
 {
     
 
-    public function get(){
+    public function getApps(){
 
         return App::get();
 
@@ -31,9 +31,5 @@ class AppController extends Controller
 
         return $res->structure;
 
-    }
-
-    public function getLastModified(){
-        return App::orderBy('updated_at', 'desc')->first();
     }
 }

@@ -7,6 +7,7 @@ Route::post('/createApp','Administration\\DataManagementController@createApp');
 
 //App Controller
 Route::get('/app/get','Administration\\AppController@get');
+Route::get('/app/getLastModified','Administration\\AppController@getLastModified');
 Route::post('/app/getInfoById','Administration\\AppController@getInfoById');
 Route::post('/app/getObjectById','Administration\\AppController@getObjectById');
 

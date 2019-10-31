@@ -41,11 +41,15 @@
 
                    
                     <v-col class="d-flex" cols="12" sm="12">
+                    <!--
                         <v-select
                         :items="items"
                         label="Select App"
                         outlined
+                        dense
                         ></v-select>
+                        -->
+                        <app-selector></app-selector>
                     </v-col>
                       
                    
@@ -86,7 +90,7 @@
             <v-app-bar app clipped-left elevation="1">
                 <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
                 {{-- <v-toolbar-title>{{config('app.name')}}</v-toolbar-title> --}}
-                <v-toolbar-title><img src="img/triple-s-vida-logo.png" alt="TripleS - Vida" style="height: 42px; padding-top:10px"></v-toolbar-title>
+                <v-toolbar-title><!--<img src="img/triple-s-vida-logo.png" alt="TripleS - Vida" style="height: 42px; padding-top:10px">-->Octapi.io</v-toolbar-title>
             </v-app-bar>
 
             <v-content>

@@ -72,7 +72,7 @@ class MikeRoute
        
 
         foreach ($this->controllerMethods as $item) {
-            $this::addRoute("Route::".$item["type"]."('".$this->appNamePath."/".$this->modelName."/".$item["name"]."','Octapi\\".$this->appNamePath."\\".$this->modelName."Controller@".$item["name"]."'); ");
+            $this::addRoute("Route::".$item["type"]."('api/".$this->appNamePath."/".$this->modelName."/".$item["name"]."','Octapi\\".$this->appNamePath."\\".$this->modelName."Controller@".$item["name"]."'); ");
         }
 
         $this->document = $this->header;

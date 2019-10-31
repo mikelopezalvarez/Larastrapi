@@ -6,7 +6,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
     state: {
         //App
-        appSelected : 25,
+        appSelected : 0,
 
 
 
@@ -34,6 +34,14 @@ export default new Vuex.Store({
         dialogCancelCb: ()=>{},
     },
     mutations: {
+
+
+        setApp: (state, selected) => {
+  
+            state.appSelected = selected;
+  
+        },
+ 
 
         // breadcrumbs
         setBreadcrumbs(state, items) {

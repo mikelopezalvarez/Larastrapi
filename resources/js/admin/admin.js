@@ -15,6 +15,16 @@ import Vue from 'vue';
 import Vuetify from 'vuetify';
 import 'vuetify/dist/vuetify.min.css';
 import VueProgressBar from 'vue-progressbar'
+import VueSweetalert2 from 'vue-sweetalert2';
+ 
+// If you don't need the styles, do not connect
+import 'sweetalert2/dist/sweetalert2.min.css';
+ 
+Vue.use(VueSweetalert2);
+
+
+
+//Vue.component('thread-view', require('./pages/Thread.vue'));
 
 // this is the vuetify theming options
 // you can change colors here based on your needs
@@ -40,6 +50,8 @@ Vue.use(VueProgressBar,{
 
 // global component registrations here
 Vue.component('moon-loader', require('vue-spinner/src/MoonLoader.vue'));
+Vue.component('app-selector', require('./general/AppSelector.vue'));
+//import AppSelector from './general/app-selector'
 
 // app
 import router from './router';

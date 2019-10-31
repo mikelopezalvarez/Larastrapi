@@ -53,7 +53,7 @@
              <v-btn
               color="green accent-4"
               class="ma-2" tile outlined
-              @click="saveData"
+              @click="saveConfirm"
             >
               SAVE CONFIGURATION
             </v-btn>
@@ -337,15 +337,14 @@
 </template>
 
 <script>
-
+import { mapState, mapMutations } from 'vuex'
     
 
     export default {
-        props: {
-          id: Number,
-        },
+        
         data : function(){
           return {
+            id: null,
             menu: false,
             switch1: true,
             droppedTables: [],
@@ -544,9 +543,31 @@
             }
             this.app.security.token = result;
           },
+
+          saveConfirm(){
+             var self = this;  
+
+              self.$swal({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#4caf50',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, save it!'
+              }).then((result) => {
+                if (result.value) {
+                  self.saveData();
+                }
+              })
+          },
+
           saveData(){
 
+            
             var self = this;  
+           
+
             // Get Renamed Tables
             for (var i = 0; i < self.app.tables.length; i++) {
               if(!self.app.tables[i].new){
@@ -664,21 +685,34 @@
 
           }
         },
+
+        watch: {
+            id: function () {
+                this.getApp();
+            },
+        },
         mounted() {
 
             //const self = this;
+            
+            this.id = this.appSelected;
 
             //self.getApp();
 
         },
         created(){
 
-          this.getApp();
-
           
 
-          
+          //this.getApp();
 
-        }
+
+        },
+        computed: {
+          ...mapState([
+              'appSelected'
+          ]),
+
+      }
     }
 </script>

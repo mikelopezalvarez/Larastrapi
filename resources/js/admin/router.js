@@ -8,12 +8,27 @@ const router = new Router({
     routes: [
         {
             path: '/',
-            redirect: '/dashboard',
+            redirect: '/data_management',
         },
         {
             name: 'data_management',
             path: '/data_management',
             component: require('./DataManagement/DataManagement2'),
+        },
+        {
+            name: 'create_app',
+            path: '/create_app',
+            component: require('./DataManagement/components/AppCreator'),
+        },
+        {
+            name: 'app_management',
+            path: '/app/management',
+            component: require('./DataManagement/components/AppManagement'),
+        },
+        {
+            name: 'redirect',
+            path: '/redirect/:id',
+            component: require('./general/Redirect'),
         },
         {
             path: '/users',

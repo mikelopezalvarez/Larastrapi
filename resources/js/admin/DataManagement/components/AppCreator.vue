@@ -98,6 +98,7 @@
 </template>
 
 <script>
+import { mapState, mapMutations } from 'vuex'
     export default {
         // inject: ['theme'],
         data : function(){
@@ -119,6 +120,11 @@
           }
         },
         methods: {
+
+          //Mutations represent methods or functions
+            ...mapMutations([
+                'setApp',
+            ]),
          
           // When click refresh token
           refreshToken(){
@@ -133,6 +139,8 @@
           },
           createApp(){
 
+            const self = this;
+
             // Create App
             axios.post('/createApp', {
                 data: this.app,
@@ -140,6 +148,9 @@
             .then(function (res) {
                 
                 if(res.data.success){
+
+                  self.setApp(res.data.id);
+                  self.$router.go();
 
                 }
 
