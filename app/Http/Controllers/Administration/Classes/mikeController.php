@@ -28,15 +28,22 @@ class MikeController
 
     private $modelName;
 
+    private $security;
+    private $token;
+
 
    
 
-    public function __construct($appNamePath, $modelName, $table){
+    public function __construct($appNamePath, $modelName, $table, $security, $token){
 
         $this->appNamePath = $appNamePath;
         $this->table = $table;
         $this->tableName = $table["name"];
         $this->modelName = $modelName;
+
+        $this->security = $security;
+        $this->token = $token;
+
 
 
         $this->header = '<?php' . PHP_EOL;
@@ -66,7 +73,7 @@ class MikeController
     // Method to create file 
     public function save(){
 
-        $methods = new MethodsInterface($this->modelName, $this->table);
+        $methods = new MethodsInterface($this->modelName, $this->table, $this->security, $this->token);
 
         foreach ($methods->interface as $item){
         
@@ -102,98 +109,6 @@ class MikeController
 
 
    
-
-    private function get(){
-        
-        $func = '';
-
-        $func .= "\t\t" . 'public function get(){ ' . PHP_EOL;
-
-        $func .= "\t\t\t" . 'return '.$this->modelName.'::get(); ' . PHP_EOL;
-
-        $func .= "\t\t" . '} ' . PHP_EOL;
-
-        return $func;
-
-
-    }
-
-    private function find(){
-        
-        $func = '';
-
-        $func .= "\t\t" . 'public function find(Request $request){ ' . PHP_EOL;
-
-        $func .= "\t\t\t" . 'return '.$this->modelName.'::find($request->id); ' . PHP_EOL;
-
-        $func .= "\t\t" . '} ' . PHP_EOL;
-
-        return $func;
-
-
-    }
-
-    private function delete(){
-        
-        $func = '';
-
-        $func .= "\t\t" . 'public function delete(Request $request){ ' . PHP_EOL;
-
-        $func .= "\t\t\t" . '$e = '.$this->modelName.'::find($request->id); ' . PHP_EOL;
-        $func .= "\t\t\t" . 'return $e->delete(); ' . PHP_EOL;
-
-        $func .= "\t\t" . '} ' . PHP_EOL;
-
-        return $func;
-
-
-    }
-
-    private function update(){
-        
-        $func = '';
-
-        $func .= "\t\t" . 'public function update(Request $request){ ' . PHP_EOL;
-        
-        $func .= "\t\t\t" . '$e = '.$this->modelName.'::find($request->id); ' . PHP_EOL;
-
-        foreach ($this->table["fields"] as $item) {
-
-            $func .= "\t\t\t" . '$e->'.$item['name'].' = $request->'.$item['name'].'; ' . PHP_EOL;
-
-        }
-        $func .= "\t\t\t" . '$result = $e->save(); ' . PHP_EOL;
-        $func .= "\t\t\t" . 'return $result; ' . PHP_EOL;
-        $func .= "\t\t" . '} ' . PHP_EOL;
-
-        return $func;
-
-    }
-
-    private function create(){
-        
-        $func = '';
-
-        $func .= "\t\t" . 'public function create(Request $request){ ' . PHP_EOL;
-        
-        $func .= "\t\t\t" . '$e = new '.$this->modelName.'; ' . PHP_EOL;
-
-        foreach ($this->table["fields"] as $item) {
-
-            $func .= "\t\t\t" . '$e->'.$item['name'].' = $request->'.$item['name'].'; ' . PHP_EOL;
-
-        }
-
-        $func .= "\t\t\t" . 'if($e->save()){ ' . PHP_EOL;
-        $func .= "\t\t\t\t" . 'return response()->json(["success" => true, "id" => $e->id]); ' . PHP_EOL;
-        $func .= "\t\t\t" . '}else{ ' . PHP_EOL;
-        $func .= "\t\t\t\t" . 'return response()->json(["success" => false]); ' . PHP_EOL;
-        $func .= "\t\t\t" . '} ' . PHP_EOL;
-        $func .= "\t\t" . '} ' . PHP_EOL;
-
-        return $func;
-
-    }
 
     
 

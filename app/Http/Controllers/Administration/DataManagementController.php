@@ -164,7 +164,7 @@ class DataManagementController extends Controller
         
         foreach ($this->app["tables"] as $item) {
 
-            $controller = new MikeController( $this->appNamePath, $this::cleanToName($item["name"]), $item );
+            $controller = new MikeController( $this->appNamePath, $this::cleanToName($item["name"]), $item , $this->app["security"]["active"], $this->app["security"]["token"] );
             $controller->save();
 
             $method = new MikeModel( $this->appNamePath, $this::cleanToName($item["name"]), $item );
