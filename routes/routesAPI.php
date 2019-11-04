@@ -11,6 +11,10 @@ Route::get('/app/getLastModified','Administration\\AppController@getLastModified
 Route::post('/app/getInfoById','Administration\\AppController@getInfoById');
 Route::post('/app/getObjectById','Administration\\AppController@getObjectById');
 
+//General Controller
+Route::get('/general/getApp','Administration\\GeneralController@getSelectedApp');
+Route::post('/general/setApp','Administration\\GeneralController@setApp');
+
 
 
 

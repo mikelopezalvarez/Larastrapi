@@ -9,19 +9,21 @@ use Illuminate\Support\Facades\Artisan;
 use Carbon\Carbon;
 use App\App;
 
+use Illuminate\Support\Facades\Session;
+
 class GeneralController extends Controller
 {
     
 
-    public function getApps(){
+    public function getSelectedApp(){
 
-        return App::get();
+        return response()->json(['success' => true, "id" => Session::get('appId')]);
 
     }
 
-    public function getInfoById(Request $request){
+    public function setApp(Request $request){
 
-        return App::find($request->id);
+        Session::put('appId', $request->id);
 
     }
 

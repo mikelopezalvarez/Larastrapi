@@ -55,7 +55,7 @@
               class="ma-2" tile outlined
               @click="saveConfirm"
             >
-              SAVE CONFIGURATION
+              SAVE 
             </v-btn>
             </div>
 
@@ -152,7 +152,16 @@
                        
 
                        <p class="text-right pt-4 pb-0">
-
+                         <v-btn small
+                              color="blue lighten-4"
+                              v-on="on"
+                              borderless
+                              @click="getApiTable(i)"
+                              
+                            >
+                             API
+                             <v-icon right>link</v-icon> 
+                            </v-btn>
 
                          <v-menu 
                           v-model="menu"
@@ -332,6 +341,74 @@
         </v-card>
       </v-col>
     </v-row>
+
+
+    <v-dialog
+      v-model="getApiDialog"
+      width="700"
+    >
+      <template v-slot:activator="{ on }">
+       
+      </template>
+
+      <v-card>
+        <v-card-title
+          class="headline grey lighten-2"
+          primary-title
+        >
+          API - {{txtApiTable}}
+        </v-card-title>
+
+        <v-card-text>
+
+          <v-text-field
+            class="pt-4"
+            label="Get"
+            v-model="txtApiGet"
+            readonly
+          ></v-text-field>
+
+          <v-text-field
+            label="Find"
+            v-model="txtApiFind"
+            readonly
+          ></v-text-field>
+
+
+         <v-text-field
+            label="Create"
+            v-model="txtApiCreate"
+            readonly
+          ></v-text-field>
+
+         <v-text-field
+         v-model="txtApiUpdate"
+         readonly
+            label="Update"
+          ></v-text-field>
+
+          <v-text-field
+            label="Delete"
+            v-model="txtApiDelete"
+            readonly
+          ></v-text-field>
+
+        </v-card-text>
+
+        <v-divider></v-divider>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="primary"
+            text
+            @click="getApiDialog = false"
+          >
+            Ok
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     
   </div>
 </template>
@@ -346,7 +423,14 @@ import { mapState, mapMutations } from 'vuex'
           return {
             id: null,
             menu: false,
+            getApiDialog: false,
             switch1: true,
+            txtApiTable: '',
+            txtApiGet: '',
+            txtApiFind: '',
+            txtApiCreate: '',
+            txtApiUpdate: '',
+            txtApiDelete: '',
             droppedTables: [],
             newTables: [],
             changedTables: [],
@@ -417,7 +501,7 @@ import { mapState, mapMutations } from 'vuex'
             var self = this;  
             // Get application object
             axios.post('/app/getObjectById', {
-                id: this.id,
+                id: self.id,
             })
             .then(function (res) {
                 
@@ -683,19 +767,58 @@ import { mapState, mapMutations } from 'vuex'
             });
             
 
+          },
+
+          getApiTable(i){
+            
+            this.getApiDialog = true;
+
+            var link = '/api/' + this.appInfo.alias + '/' + this.app.tables[i].name + '/';
+
+            this.txtApiTable = this.app.tables[i].name;
+
+            this.txtApiGet = link + 'get';
+            this.txtApiFind = link + 'find';
+            this.txtApiCreate = link + 'create';
+            this.txtApiUpdate = link + 'update';
+            this.txtApiDelete = link + 'delete';
+
+          },
+
+          getSessionApp(){
+            
+            const self = this;
+            // Fetch all apps
+            axios.get('/general/getApp', {
+                data: '',
+            })
+            .then(function (res) {
+               
+               if(res.data.success){
+                    self.id = res.data.id;
+                    self.getApp();
+               }
+
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+
           }
+         
         },
 
-        watch: {
-            id: function () {
-                this.getApp();
-            },
-        },
+        // watch: {
+        //     id: function () {
+        //         this.getApp();
+        //     },
+        // },
         mounted() {
 
             //const self = this;
             
-            this.id = this.appSelected;
+            //this.id = this.appSelected;
+            this.getSessionApp();
 
             //self.getApp();
 
@@ -709,9 +832,9 @@ import { mapState, mapMutations } from 'vuex'
 
         },
         computed: {
-          ...mapState([
-              'appSelected'
-          ]),
+          // ...mapState([
+          //     'appSelected'
+          // ]),
 
       }
     }

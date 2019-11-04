@@ -32,10 +32,10 @@
           }
         },
         methods: {
-            //Mutations represent methods or functions
-            ...mapMutations([
-                'setApp',
-            ]),
+            // //Mutations represent methods or functions
+            // ...mapMutations([
+            //     'setApp',
+            // ]),
         
           getApps(){
             const self = this;
@@ -53,16 +53,33 @@
             });
           },
 
+          setApp(id){
+
+            const self = this;
+            // Set App
+            axios.post('/general/setApp', {
+                id: id,
+            })
+            .then(function (res) {
+               
+               location.reload(true);
+
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+
+          },
           changeApp(val){
               //console.log(this.$router.currentRoute.fullPath);
               this.setApp(val);
-              this.$router.push({name:"redirect", params: { name: 'data_management' } });
+              //this.$router.push({name:"redirect", params: { name: 'data_management' } });
               //this.$router.replace(this.$router.currentRoute)
 
           },
           // Method to get always the last app modified
           getLastModified(){
-              const self = this;
+            const self = this;
             // Fetch all apps
             axios.get('/app/getLastModified', {
                 data: '',
@@ -83,22 +100,49 @@
             });
 
               
+          },
+          getSessionApp(){
+            
+            const self = this;
+            // Fetch all apps
+            axios.get('/general/getApp', {
+                data: '',
+            })
+            .then(function (res) {
+               
+               if(res.data.success){
+                    self.selected = res.data.id;
+               }
+
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+
           }
           
         },
         watch: {
             // Pending to change dropdown app
             selected: function (val) {
-                this.changeApp(val);
+                //this.changeApp(val);
             },
         },
-        mounted() {
+        created(){
 
             const self = this;
 
             self.getApps();
 
-            self.getLastModified();
+            self.getSessionApp();
+
+
+        },
+        mounted() {
+
+           
+           
+            //self.getLastModified();
 
            
         }
