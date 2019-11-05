@@ -7,6 +7,7 @@ export default new Vuex.Store({
     state: {
         //App
         appSelected : 0,
+        apps: [],
 
 
 
@@ -39,6 +40,29 @@ export default new Vuex.Store({
         setApp: (state, selected) => {
   
             state.appSelected = selected;
+  
+        },
+
+        getApps: (state) => {
+  
+            const self = this;
+            // Fetch all apps
+            axios.get('/app/get', {
+                data: '',
+            })
+            .then(function (res) {
+
+
+                state.apps = res.data;
+  
+                
+               // self.selectApp();
+
+
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
   
         },
  

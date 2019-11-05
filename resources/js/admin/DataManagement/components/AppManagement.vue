@@ -15,6 +15,8 @@
             <!--<div>Word of the Day</div>-->
             <p class="display-1 text--primary">
               {{ appInfo.name }}
+
+              {{ id }}
                
             </p>
             <div class="text--primary">
@@ -418,10 +420,13 @@ import { mapState, mapMutations } from 'vuex'
     
 
     export default {
-        
+
+        name : 'app_management',
         data : function(){
           return {
             id: null,
+            appId: null,
+            icon: '',
             menu: false,
             getApiDialog: false,
             switch1: true,
@@ -501,7 +506,7 @@ import { mapState, mapMutations } from 'vuex'
             var self = this;  
             // Get application object
             axios.post('/app/getObjectById', {
-                id: self.id,
+                id: self.appId,
             })
             .then(function (res) {
                 
@@ -519,7 +524,7 @@ import { mapState, mapMutations } from 'vuex'
 
             // Get app information
             axios.post('/app/getInfoById', {
-                id: this.id,
+                id: self.appId,
             })
             .then(function (res) {
                 
@@ -751,7 +756,7 @@ import { mapState, mapMutations } from 'vuex'
                 renamedFields: self.renamedFields,
                 droppedFields: self.droppedFields,
                 //newFields: self.newFields,
-                id: self.id
+                id: self.appId
             })
             .then(function (res) {
 
@@ -795,8 +800,10 @@ import { mapState, mapMutations } from 'vuex'
             .then(function (res) {
                
                if(res.data.success){
-                    self.id = res.data.id;
+                    self.appId = res.data.id;
                     self.getApp();
+               }else{
+                    self.$router.push({name: "apps_list"});
                }
 
             })
@@ -815,20 +822,29 @@ import { mapState, mapMutations } from 'vuex'
         // },
         mounted() {
 
-            //const self = this;
+           const self = this;
             
             //this.id = this.appSelected;
-            this.getSessionApp();
+           // this.getSessionApp();
 
-            //self.getApp();
+          // self.id = self.$router.params;
+
+          //console.log(this.$route.params.id)
+          //this.appId = this.$route.params.id;
+
+          //this.getApp();
+
+          this.getSessionApp();
+
+
+          
 
         },
         created(){
 
-          
+          //alert(this.id)
 
-          //this.getApp();
-
+        
 
         },
         computed: {

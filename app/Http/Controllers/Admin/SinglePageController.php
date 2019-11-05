@@ -79,7 +79,7 @@ class SinglePageController extends AdminController
                 'nav_type' => '',
                 'icon'=>'settings_input_component',
                 'route_type'=>'vue',
-                'route_name'=>'data_management',
+                'route_name'=>'app_management',
                 'visible'=>true,
             ],
             [
@@ -89,7 +89,7 @@ class SinglePageController extends AdminController
                 'nav_type' => '',
                 'icon'=>'post_add',
                 'route_type'=>'vue',
-                'route_name'=>'settings',
+                'route_name'=>'app_content',
                 'visible'=>true,
             ],
             [

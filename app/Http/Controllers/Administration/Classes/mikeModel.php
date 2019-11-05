@@ -22,7 +22,7 @@ class MikeModel
 
     public $methods;
 
-    
+    public $prefix;
 
     private $footer;
 
@@ -31,14 +31,17 @@ class MikeModel
     private $modelName;
 
 
+
+
    
 
-    public function __construct($appNamePath, $modelName, $table){
+    public function __construct($appNamePath, $modelName, $table, $prefix){
 
         $this->appNamePath = $appNamePath;
         $this->table = $table;
         $this->tableName = $table["name"];
         $this->modelName = $modelName;
+        $this->prefix = $prefix;
 
 
         $this->header = '<?php' . PHP_EOL;
@@ -73,7 +76,7 @@ class MikeModel
 
     public function setTable($name){
 
-        $this::appendProperties(  "\t" . 'protected $table = "'.$name.'"; ' );
+        $this::appendProperties(  "\t" . 'protected $table = "'.$this->prefix.'_'.$name.'"; ' );
 
 
     }

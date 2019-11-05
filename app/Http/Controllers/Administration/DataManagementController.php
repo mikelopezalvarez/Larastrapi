@@ -119,6 +119,8 @@ class DataManagementController extends Controller
         $this->appName = $data["name"]; 
         // Storage folder name
         $this->appNamePath = $data["alias"]; 
+        // Storage app prefix
+        $this->appPrefix = $data["prefix"]; 
         // Get app id
         $this->id = $request->id;
         // Storage all arrays elements to run the save config
@@ -167,7 +169,7 @@ class DataManagementController extends Controller
             $controller = new MikeController( $this->appNamePath, $this::cleanToName($item["name"]), $item , $this->app["security"]["active"], $this->app["security"]["token"] );
             $controller->save();
 
-            $method = new MikeModel( $this->appNamePath, $this::cleanToName($item["name"]), $item );
+            $method = new MikeModel( $this->appNamePath, $this::cleanToName($item["name"]), $item, $this->appPrefix );
             $method->save();
             
             $route = new MikeRoute( $this->appNamePath, $this::cleanToName($item["name"]), $item );
@@ -191,7 +193,7 @@ class DataManagementController extends Controller
             $save++;
             foreach($this->droppedTables as $item){
 
-                $migration->up("\t\t" . 'Schema::dropIfExists("'.$item["name"].'"); ');
+                $migration->up("\t\t" . 'Schema::dropIfExists("'.$this->appPrefix.'_'.$item["name"].'"); ');
 
                 $migration->down($this::prepareTableBlueprint($item));
 
@@ -213,7 +215,7 @@ class DataManagementController extends Controller
 
                 $migration->up($this::prepareTableBlueprint($item));
 
-                $migration->down("\t\t" . 'Schema::dropIfExists("'.$item["name"].'"); ');
+                $migration->down("\t\t" . 'Schema::dropIfExists("'.$this->appPrefix.'_'.$item["name"].'"); ');
 
             }
         }
@@ -237,7 +239,7 @@ class DataManagementController extends Controller
 
                 $migration->up($this::prepareTableBlueprint($item));
 
-                $migration->down("\t\t" . 'Schema::dropIfExists("'.$item["name"].'"); ');
+                $migration->down("\t\t" . 'Schema::dropIfExists("'.$this->appPrefix.'_'.$item["name"].'"); ');
     
             }
 
@@ -288,9 +290,9 @@ class DataManagementController extends Controller
         foreach($this->renamedTables as $item){
 
             $save++;
-            $migration->up("\t\t" . 'Schema::rename("'.$item["oldName"].'", "'.$item["newName"].'"); ');
+            $migration->up("\t\t" . 'Schema::rename("'.$this->appPrefix.'_'.$item["oldName"].'", "'.$this->appPrefix.'_'.$item["newName"].'"); ');
 
-            $migration->down("\t\t" . 'Schema::rename("'.$item["newName"].'", "'.$item["oldName"].'"); ');
+            $migration->down("\t\t" . 'Schema::rename("'.$this->appPrefix.'_'.$item["newName"].'", "'.$this->appPrefix.'_'.$item["oldName"].'"); ');
 
         }
 
@@ -308,7 +310,7 @@ class DataManagementController extends Controller
 
         if($type == 'up'){ 
 
-            $res = "\t\t\t" . 'Schema::table("'.$tableName.'", function(Blueprint $t){ ' . PHP_EOL;
+            $res = "\t\t\t" . 'Schema::table("'.$this->appPrefix.'_'.$tableName.'", function(Blueprint $t){ ' . PHP_EOL;
             $res .= "\t\t\t\t" . '$t->dropColumn("'.$name.'"); ' . PHP_EOL;
             $res .= "\t\t\t" . '}); ' . PHP_EOL . PHP_EOL;
     
@@ -316,7 +318,7 @@ class DataManagementController extends Controller
         }else{
 
 
-            $res = "\t\t\t" . 'Schema::table("'.$tableName.'", function(Blueprint $t){ ' . PHP_EOL;
+            $res = "\t\t\t" . 'Schema::table("'.$this->appPrefix.'_'.$tableName.'", function(Blueprint $t){ ' . PHP_EOL;
             $res .= "\t\t\t\t" . '$t->'.$fieldType.'("'.$name.'")->nullable(); ' . PHP_EOL;
             $res .= "\t\t\t" . '}); ' . PHP_EOL . PHP_EOL;
            
@@ -337,7 +339,7 @@ class DataManagementController extends Controller
         if($type == 'up'){
 
 
-            $res = "\t\t\t" . 'Schema::table("'.$tableName.'", function(Blueprint $t){ ' . PHP_EOL;
+            $res = "\t\t\t" . 'Schema::table("'.$this->appPrefix.'_'.$tableName.'", function(Blueprint $t){ ' . PHP_EOL;
             $res .= "\t\t\t\t" . '$t->renameColumn("'.$oldName.'", "'.$newName.'"); ' . PHP_EOL;
             $res .= "\t\t\t" . '}); ' . PHP_EOL . PHP_EOL;
     
@@ -346,7 +348,7 @@ class DataManagementController extends Controller
         }else{
 
 
-            $res = "\t\t\t" . 'Schema::table("'.$tableName.'", function(Blueprint $t){ ' . PHP_EOL;
+            $res = "\t\t\t" . 'Schema::table("'.$this->appPrefix.'_'.$tableName.'", function(Blueprint $t){ ' . PHP_EOL;
             $res .= "\t\t\t\t" . '$t->renameColumn("'.$newName.'", "'.$oldName.'"); ' . PHP_EOL;
             $res .= "\t\t\t" . '}); ' . PHP_EOL . PHP_EOL;
     
@@ -441,8 +443,8 @@ class DataManagementController extends Controller
         // Get the name table
         $tableName = $this::cleanToName($table["name"]);
 
-        $res = "\t\t" . "if (!Schema::hasTable('".$tableName."')) { " . PHP_EOL;
-            $res .= "\t\t\t" . 'Schema::create("'.$tableName.'", function (Blueprint $t) {' . PHP_EOL;
+        $res = "\t\t" . "if (!Schema::hasTable('".$this->appPrefix."_".$tableName."')) { " . PHP_EOL;
+            $res .= "\t\t\t" . 'Schema::create("'.$this->appPrefix.'_'.$tableName.'", function (Blueprint $t) {' . PHP_EOL;
         
                 $res .= "\t\t\t\t" . '$t->engine = "InnoDB"; ' . PHP_EOL;
                 $res .= "\t\t\t\t" . '$t->increments("id"); ' . PHP_EOL;
@@ -459,7 +461,7 @@ class DataManagementController extends Controller
         
         $res.= "\t\t" .  '} else {' . PHP_EOL;
 
-            $res .="\t\t\t" . 'Schema::table("'.$tableName.'", function (Blueprint $t) {' . PHP_EOL;
+            $res .="\t\t\t" . 'Schema::table("'.$this->appPrefix.'_'.$tableName.'", function (Blueprint $t) {' . PHP_EOL;
         // Update table
         foreach ($table["fields"] as $item) {
 

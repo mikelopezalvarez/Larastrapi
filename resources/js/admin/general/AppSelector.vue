@@ -10,6 +10,7 @@
             outlined
             dense
             hide-details
+            @change="changeApp"
             >
         </v-select>
 
@@ -24,7 +25,7 @@
         name: 'app-selector',
         data : function(){
           return {
-            
+            change: 0,
             selected: '',
             apps: [],
               
@@ -47,10 +48,29 @@
 
                 self.apps = res.data;
 
+              
+                
+               // self.selectApp();
+
+
             })
             .catch(function (error) {
                 console.log(error);
             });
+          },
+
+          selectApp(){
+
+                const self = this;
+                $.each(self.apps, function(key, value) {
+                    if(value.id == self.$route.params.id){
+                        self.selected = {
+                            name: value.name,
+                            id: value.id
+                        };
+                    }
+                });
+              
           },
 
           setApp(id){
@@ -71,10 +91,23 @@
 
           },
           changeApp(val){
-              //console.log(this.$router.currentRoute.fullPath);
-              this.setApp(val);
-              //this.$router.push({name:"redirect", params: { name: 'data_management' } });
-              //this.$router.replace(this.$router.currentRoute)
+
+            var self = this;  
+
+              self.$swal({
+                title: 'Are you sure you want change the App?',
+                text: "You won't be able to revert this!",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#4caf50',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, save it!'
+              }).then((result) => {
+                if (result.value) {
+                   self.setApp(val);
+                }
+              })
+              
 
           },
           // Method to get always the last app modified
@@ -122,17 +155,20 @@
           }
           
         },
-        watch: {
-            // Pending to change dropdown app
-            selected: function (val) {
-                //this.changeApp(val);
-            },
-        },
+        // watch: {
+        //     // Pending to change dropdown app
+        //     selected: function (val) {
+        //         this.changeApp(val);
+        //     },
+        // },
         created(){
 
             const self = this;
 
             self.getApps();
+
+            //this.selected = this.$route.params.id;
+
 
             self.getSessionApp();
 

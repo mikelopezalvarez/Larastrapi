@@ -17,7 +17,11 @@ class GeneralController extends Controller
 
     public function getSelectedApp(){
 
-        return response()->json(['success' => true, "id" => Session::get('appId')]);
+        if(Session::get('appId') != null){
+            return response()->json(['success' => true, "id" => Session::get('appId')]);
+        }else{
+            return response()->json(['success' => false]);
+        }
 
     }
 
