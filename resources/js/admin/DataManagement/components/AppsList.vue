@@ -11,14 +11,15 @@
       
       
       
-      <v-col md="3" v-for="item in apps">
+      <v-col md="3" v-for="item in apps" v-bind:data="item"
+           v-bind:key="item.name">
 
           <v-card 
             class="mx-auto"
             max-width="344"
         >
             <v-card-text>
-            <!--<div>Word of the Day</div>-->
+           
             <p class="display-1 text--primary">
                 {{ item.name }}
             </p>
@@ -89,6 +90,12 @@ import { mapState, mapMutations } from 'vuex'
             const self = this;
 
             self.getApps();
+        },
+        created(){
+            // If not found apps, redirect to create app
+            if(this.apps.length <= 0){
+                this.$router.push({name: "app_create"});
+            }
         },
         computed: {
           ...mapState([

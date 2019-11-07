@@ -52,9 +52,9 @@ export default new Vuex.Store({
             })
             .then(function (res) {
 
-
+         
                 state.apps = res.data;
-  
+                
                 
                // self.selectApp();
 
