@@ -8,7 +8,7 @@ const router = new Router({
     routes: [
         {
             path: '/',
-            redirect: '/app/management',
+            redirect: '/apps/list',
         },
         {
             name: 'data_management',
@@ -25,14 +25,15 @@ const router = new Router({
             path: '/app/management',
             component: require('./DataManagement/components/AppManagement'),
         },
-        {
-            name: 'app_management',
-            path: '/app/management',
-            component: require('./DataManagement/components/AppManagement'),
-        },
+        
         {
             name: 'apps_list',
             path: '/apps/list',
+            component: require('./DataManagement/components/AppsList'),
+        },
+        {
+            name: 'app_content',
+            path: '/app/content',
             component: require('./DataManagement/components/AppsList'),
         },
         {

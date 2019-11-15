@@ -39,18 +39,18 @@
                     style="background-color: #17202f;"
                     left>
 
-                   
+<!--                    
                     <v-col class="d-flex" cols="12" sm="12">
-                    <!--
+                  
                         <v-select
                         :items="items"
                         label="Select App"
                         outlined
                         dense
                         ></v-select>
-                        -->
+                    
                         <app-selector></app-selector>
-                    </v-col>
+                    </v-col> -->
                       
                    
                 <v-list dense>

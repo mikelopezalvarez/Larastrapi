@@ -8,6 +8,7 @@ export default new Vuex.Store({
         //App
         appSelected : 0,
         apps: [],
+        appInd: false,
 
 
 
@@ -54,6 +55,10 @@ export default new Vuex.Store({
 
          
                 state.apps = res.data;
+                if(state.apps.length > 0){
+                    state.appInd = true;
+                }
+                
                 
                 
                // self.selectApp();

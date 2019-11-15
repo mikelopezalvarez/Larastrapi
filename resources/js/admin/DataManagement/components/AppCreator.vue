@@ -75,9 +75,10 @@
 
              <p class="text-center">
                    
-                   <v-btn class="ma-2" tile outlined color="success" @click.prevent="createApp">
+                   <!-- <v-btn class="ma-2" tile outlined color="success" @click.prevent="createApp">
                         Create and Save Application
-                    </v-btn>
+                    </v-btn> -->
+                    <v-btn depressed @click.prevent="createApp">Create Application</v-btn>
 
                </p>
 
@@ -150,7 +151,8 @@ import { mapState, mapMutations } from 'vuex'
                 if(res.data.success){
 
                   self.setApp(res.data.id);
-                  self.$router.go();
+                  //self.$router.go();
+                  self.$router.push({name: "apps_list"});
 
                 }
 

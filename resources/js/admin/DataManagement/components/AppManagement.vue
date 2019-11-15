@@ -52,13 +52,9 @@
             </template>
 
             <div class="text-center">
-             <v-btn
-              color="green accent-4"
-              class="ma-2" tile outlined
-              @click="saveConfirm"
-            >
-              SAVE 
-            </v-btn>
+            
+
+            <v-btn depressed @click.prevent="saveConfirm">Save Configuration</v-btn>
             </div>
 
           </v-card-text>
@@ -87,7 +83,7 @@
                           borderless
                         >
                           <v-btn  small value="left" color="green lighten-4" @click="addTable">
-                            <span class="hidden-sm-and-down">Add Table</span>
+                            <span class="hidden-sm-and-down">Add Collection</span>
 
                             <v-icon right>grid_on</v-icon>
                           </v-btn>
