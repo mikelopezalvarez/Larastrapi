@@ -28,13 +28,16 @@ class MethodsInterface
     private $table;
     private $security;
     private $token;
+    private $relationString;
 
-    public function __construct($tableName, $table, $security = false, $token = ''){
+    public function __construct($tableName, $table, $security = false, $token = '', $relationString = ''){
 
         $this->tableName = $tableName;
         $this->table = $table;
         $this->security = $security;
         $this->token = $token;
+
+        $this->relationString = $relationString;
 
 
         for($i = 0; $i < count($this->interface); $i++){
@@ -56,8 +59,12 @@ class MethodsInterface
             $func .= "\t\t\t" . 'return response("Token Access Denied", 200)->header("Content-Type", "text/plain"); ' . PHP_EOL;
             $func .= "\t\t\t" . '} else { ' . PHP_EOL;
         }
-
-        $func .= "\t\t\t" . 'return '.$this->tableName.'::get(); ' . PHP_EOL;
+        
+        if($this->relationString != ''){
+            $func .= "\t\t\t" . 'return '.$this->tableName.'::with(['.$this->relationString.'])->get(); ' . PHP_EOL;
+        }else{
+            $func .= "\t\t\t" . 'return '.$this->tableName.'::get(); ' . PHP_EOL;
+        }
 
         if($this->security){
             $func .= "\t\t\t" . '} ' . PHP_EOL;
@@ -80,8 +87,11 @@ class MethodsInterface
             $func .= "\t\t\t" . 'return response("Token Access Denied", 200)->header("Content-Type", "text/plain"); ' . PHP_EOL;
             $func .= "\t\t\t" . '} else { ' . PHP_EOL;
         }
-
-        $func .= "\t\t\t" . 'return '.$this->tableName.'::find($request->id); ' . PHP_EOL;
+        if($this->relationString != ''){
+            $func .= "\t\t\t" . 'return '.$this->tableName.'::with(['.$this->relationString.'])->find($request->id); ' . PHP_EOL;
+        }else{
+            $func .= "\t\t\t" . 'return '.$this->tableName.'::find($request->id); ' . PHP_EOL;
+        }
 
         if($this->security){
             $func .= "\t\t\t" . '} ' . PHP_EOL;

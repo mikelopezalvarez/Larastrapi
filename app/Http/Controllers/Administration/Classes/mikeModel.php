@@ -123,13 +123,14 @@ class MikeModel
         foreach ($this->relations as $item) {
 
             $table2 = $item["table2"];
-            $path = 'App\Octapi\\'.$table2;
+            $field = $item["field"];
+            $path = 'App\Octapi\\'.  $this->appNamePath . '\\' .$table2;
 
             if($item["relationship"] == 1){
 
                 $func .= "\t" . 'public function '.$table2.'(){' . PHP_EOL;
 
-                $func .= "\t\t" . 'return $this->hasOne("'.$path.'");' . PHP_EOL;
+                $func .= "\t\t" . 'return $this->hasOne("'.$path.'", "'.$field.'");' . PHP_EOL;
             
                 $func .= "\t" . '}' . PHP_EOL;
 
@@ -138,7 +139,7 @@ class MikeModel
                 $func .= "\t" . 'public function '.$table2.'(){' . PHP_EOL;
 
 
-                $func .= "\t\t" . 'return $this->hasMany("'.$path.'");' . PHP_EOL;
+                $func .= "\t\t" . 'return $this->hasMany("'.$path.'", "'.$field.'");' . PHP_EOL;
         
                 $func .= "\t" . '}' . PHP_EOL;
 
@@ -161,7 +162,7 @@ class MikeModel
 
             $table1 = $item["table1"];
             $field = $item["field"];
-            $path = 'App\Octapi\\'.$table1;
+            $path = 'App\Octapi\\'.  $this->appNamePath . '\\' .$table1;
 
             //if($item["relationship"] == 1){
 

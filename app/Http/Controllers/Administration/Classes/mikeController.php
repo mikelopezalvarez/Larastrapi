@@ -31,10 +31,14 @@ class MikeController
     private $security;
     private $token;
 
+    private $relations = [];
+
+    private $relationString;
+
 
    
 
-    public function __construct($appNamePath, $modelName, $table, $security, $token){
+    public function __construct($appNamePath, $modelName, $table, $security, $token, $relations = 0){
 
         $this->appNamePath = $appNamePath;
         $this->table = $table;
@@ -43,6 +47,20 @@ class MikeController
 
         $this->security = $security;
         $this->token = $token;
+
+        $this->relationString = '';
+
+        if($relations != 0){
+            foreach ($relations as $item) {
+
+                if($this->modelName == $item['table1']){
+                    $this->relations[] = $item;
+                    $this->relationString .= '"'.$item['table2'].'",';
+
+                }
+    
+            }
+        }
 
 
 
@@ -73,7 +91,7 @@ class MikeController
     // Method to create file 
     public function save(){
 
-        $methods = new MethodsInterface($this->modelName, $this->table, $this->security, $this->token);
+        $methods = new MethodsInterface($this->modelName, $this->table, $this->security, $this->token, rtrim($this->relationString, ','));
 
         foreach ($methods->interface as $item){
         

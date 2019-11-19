@@ -166,7 +166,7 @@ class DataManagementController extends Controller
         
         foreach ($this->app["tables"] as $item) {
 
-            $controller = new MikeController( $this->appNamePath, $this::cleanToName($item["name"]), $item , $this->app["security"]["active"], $this->app["security"]["token"] );
+            $controller = new MikeController( $this->appNamePath, $this::cleanToName($item["name"]), $item , $this->app["security"]["active"], $this->app["security"]["token"], $this->app["relations"]);
             $controller->save();
 
             $method = new MikeModel( $this->appNamePath, $this::cleanToName($item["name"]), $item, $this->appPrefix, $this->app["relations"] );
@@ -454,7 +454,8 @@ class DataManagementController extends Controller
         // Create table
         foreach ($table["fields"] as $item) {
 
-            $res .= "\t\t\t\t" . '$t->'.$item['type'].'("'.$this::cleanToName($item['name']).'")->nullable(); ' . PHP_EOL;
+            //$res .= "\t\t\t\t" . '$t->'.$item['type'].'("'.$this::cleanToName($item['name']).'")->nullable(); ' . PHP_EOL;
+            $res .= "\t\t\t\t" . '$t->'.$item['type'].'("'.$item['name'].'")->nullable(); ' . PHP_EOL;
 
         }
         $res.= "\t\t\t" . '});'. PHP_EOL;
@@ -465,7 +466,8 @@ class DataManagementController extends Controller
         // Update table
         foreach ($table["fields"] as $item) {
 
-            $res .= "\t\t\t\t" . '$t->'.$item['type'].'("'.$this::cleanToName($item['name']).'")->nullable()->change(); ' . PHP_EOL;
+            //$res .= "\t\t\t\t" . '$t->'.$item['type'].'("'.$this::cleanToName($item['name']).'")->nullable()->change(); ' . PHP_EOL;
+            $res .= "\t\t\t\t" . '$t->'.$item['type'].'("'.$item['name'].'")->nullable()->change(); ' . PHP_EOL;
         
         }
         $res.= "\t\t\t" .'});'. PHP_EOL;
