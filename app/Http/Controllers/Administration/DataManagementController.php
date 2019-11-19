@@ -169,7 +169,7 @@ class DataManagementController extends Controller
             $controller = new MikeController( $this->appNamePath, $this::cleanToName($item["name"]), $item , $this->app["security"]["active"], $this->app["security"]["token"] );
             $controller->save();
 
-            $method = new MikeModel( $this->appNamePath, $this::cleanToName($item["name"]), $item, $this->appPrefix );
+            $method = new MikeModel( $this->appNamePath, $this::cleanToName($item["name"]), $item, $this->appPrefix, $this->app["relations"] );
             $method->save();
             
             $route = new MikeRoute( $this->appNamePath, $this::cleanToName($item["name"]), $item );

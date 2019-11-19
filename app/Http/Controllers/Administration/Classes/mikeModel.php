@@ -30,18 +30,36 @@ class MikeModel
 
     private $modelName;
 
+    private $relations = [];
+
+    private $belong = [];
+
 
 
 
    
 
-    public function __construct($appNamePath, $modelName, $table, $prefix){
+    public function __construct($appNamePath, $modelName, $table, $prefix, $relations = 0){
 
         $this->appNamePath = $appNamePath;
         $this->table = $table;
         $this->tableName = $table["name"];
         $this->modelName = $modelName;
         $this->prefix = $prefix;
+
+        if($relations != 0){
+            foreach ($relations as $item) {
+
+                if($this->modelName == $item['table1']){
+                    $this->relations[] = $item;
+                }
+
+                if($this->modelName == $item['table2']){
+                    $this->belong[] = $item;
+                }
+    
+            }
+        }
 
 
         $this->header = '<?php' . PHP_EOL;
@@ -98,6 +116,71 @@ class MikeModel
 
     }
 
+    public function setRelations(){
+
+        $func = "";
+
+        foreach ($this->relations as $item) {
+
+            $table2 = $item["table2"];
+            $path = 'App\Octapi\\'.$table2;
+
+            if($item["relationship"] == 1){
+
+                $func .= "\t" . 'public function '.$table2.'(){' . PHP_EOL;
+
+                $func .= "\t\t" . 'return $this->hasOne("'.$path.'");' . PHP_EOL;
+            
+                $func .= "\t" . '}' . PHP_EOL;
+
+            }else{
+
+                $func .= "\t" . 'public function '.$table2.'(){' . PHP_EOL;
+
+
+                $func .= "\t\t" . 'return $this->hasMany("'.$path.'");' . PHP_EOL;
+        
+                $func .= "\t" . '}' . PHP_EOL;
+
+            }
+
+        }
+
+
+        $this::appendMethod( $func );
+
+
+    }
+
+
+    public function setBelong(){
+
+        $func = "";
+
+        foreach ($this->belong as $item) {
+
+            $table1 = $item["table1"];
+            $field = $item["field"];
+            $path = 'App\Octapi\\'.$table1;
+
+            //if($item["relationship"] == 1){
+
+                $func .= "\t" . 'public function '.$table1.'(){' . PHP_EOL;
+
+                $func .= "\t\t" . 'return $this->belongsTo("'.$path.'", "'.$field.'");' . PHP_EOL;
+            
+                $func .= "\t" . '}' . PHP_EOL;
+
+            //}
+
+        }
+
+
+        $this::appendMethod( $func );
+
+
+    }
+
 
     public function scaffolding(){
 
@@ -116,6 +199,10 @@ class MikeModel
         $this::setTable($this->modelName);
 
         $this::setFields();
+
+        $this::setRelations();
+
+        $this::setBelong();
 
         $this->document = $this->header;
 

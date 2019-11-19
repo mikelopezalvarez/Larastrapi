@@ -77,21 +77,17 @@
 
           <v-container fluid>
               <v-row justify="center">
-                <v-subheader><v-btn-toggle
-                          class="pb-4"
-                          v-model="icon"
-                          borderless
-                        >
-                          <v-btn  small value="left" color="green lighten-4" @click="addTable">
-                            <span class="hidden-sm-and-down">Add Collection</span>
-
-                            <v-icon right>grid_on</v-icon>
-                          </v-btn>
-
-                        
-                         
-                        </v-btn-toggle>
-</v-subheader>
+                <v-subheader class="pb-md-4">
+                  
+                  <v-btn  small value="left" color="green lighten-4" @click="addTable">
+                    <span class="hidden-sm-and-down">Add Collection</span>
+                    <v-icon right>grid_on</v-icon>
+                  </v-btn>
+                  <v-btn v-if="app.tables.length > 1" small value="left" color="blue lighten-4" @click="relationDialog = true">
+                    <span class="hidden-sm-and-down">Add Relationship</span>
+                    <v-icon right>call_split</v-icon>
+                  </v-btn>
+                </v-subheader>
 
                 <v-expansion-panels popout>
                   <v-expansion-panel
@@ -112,7 +108,7 @@
                           <template v-if="table.new">
                             <v-text-field
                                 v-model="table.name"
-                                label="Table Name *new"
+                                label="Collection Name *new"
                                 placeholder="Placeholder"
                                 class="mb-0 pa-0 "
                                 outlined
@@ -123,7 +119,7 @@
                           <template v-else>
                             <v-text-field
                                 v-model="table.name"
-                                label="Table Name *old"
+                                label="Collection Name *old"
                                 placeholder="Placeholder"
                                 class="mb-0 pa-0"
                                 outlined
@@ -211,7 +207,7 @@
                           
                             <v-list-item-icon>
 
-
+                             
                               
                               <v-select
                                 v-model="item.type"
@@ -223,9 +219,7 @@
                                 hide-details
                               ></v-select>
 
-                              <v-btn text icon color="green">
-                                <v-icon>call_split</v-icon>
-                              </v-btn>
+                              
                               
 
 
@@ -407,6 +401,127 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+
+
+
+
+
+
+    <v-dialog v-model="relationDialog" persistent max-width="900px">
+      <!-- <template v-slot:activator="{ on }">
+        <v-btn color="primary" dark v-on="on">Open Dialog</v-btn>
+      </template> --> 
+      <v-card>
+        <v-card-title>
+          <span class="headline">Collection Relationship</span>
+        </v-card-title>
+        <v-card-text>
+          
+          <v-container>
+            <v-row>
+             
+             
+             
+              <v-col cols="12" sm="3">
+                 <v-autocomplete
+                  :items="app.tables"
+                  item-value="name"
+                  item-text="name"
+                  label="Choose the Collection"
+                  dense 
+                  hide-details
+                  v-model="table1"
+                ></v-autocomplete>
+              </v-col>
+              <v-col cols="12" sm="2">
+                 <v-autocomplete
+                  :items="relationTypeItems"
+                  item-value="value"
+                  item-text="text"
+                  label="Type"
+                  dense 
+                  hide-details
+                  v-model="relationship"
+                ></v-autocomplete>
+              </v-col>
+              <v-col cols="12" sm="3">
+                 <v-autocomplete
+                  :items="app.tables"
+                  item-value="name"
+                  item-text="name"
+                  label="Choose the Collection"
+                  dense 
+                  hide-details
+                  v-model="table2"
+                ></v-autocomplete>
+              </v-col>
+
+              <v-col cols="12" sm="2">
+                 <v-autocomplete
+                  :items="fields"
+                  label="Field"
+                  dense 
+                  hide-details
+                  v-model="field"
+                ></v-autocomplete>
+              </v-col>
+
+              <v-col cols="12" sm="2">
+                <v-btn @click="addRelation" value="left" color="green lighten-4" style="width: 100%;">
+                    <span class="hidden-sm-and-down">Add</span>
+                </v-btn>
+              </v-col>
+             
+            </v-row>
+
+            <v-divider></v-divider>	
+
+            <template v-if="app.relations.length > 0">
+              <v-row>
+                <v-col cols="12" sm="12">
+                  <v-simple-table>
+                    <template v-slot:default>
+                      <thead>
+                        <tr>
+                          <th class="text-left">Table 1</th>
+                          <th class="text-left">Type</th>
+                          <th class="text-left">Table 2</th>
+                          <th class="text-left"></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr v-for="item in app.relations" :key="item.table1">
+                          <td width="30%">{{ item.table1 }}</td>
+                          <td width="30%">{{ item.relationship }}</td>
+                          <td width="30%">{{ item.table2 }}</td>
+                          <td width="10%">
+                            <v-btn @click="removeRelation(item)" value="left" color="red lighten-4">
+                                <span class="hidden-sm-and-down">Remove</span>
+                            </v-btn>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </template>
+                  </v-simple-table>
+                </v-col>
+              </v-row>
+            </template>
+
+
+
+
+
+          </v-container>
+          
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="relationDialog = false">Close</v-btn>
+          <!-- <v-btn color="blue darken-1" text @click="relationDialog = false">Save</v-btn> -->
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     
   </div>
 </template>
@@ -440,6 +555,16 @@ import { mapState, mapMutations } from 'vuex'
             renamedFields: [],
             newFields: [],
             appInfo: [],
+            relationDialog: false,
+            table1:'',
+            relationship: '',
+            table2: '',
+            fields: [],
+            field: '',
+            relationTypeItems: [
+              { text: 'One to One', value: 1 },
+              { text: 'One to Many', value: 2 },
+            ],
             beforeApp: {
 
             },
@@ -450,6 +575,7 @@ import { mapState, mapMutations } from 'vuex'
                  active: false,
                  token: 'HIoidw98sw5548hgy7gouiiwqhUHGFUYhsd',
                },
+               relations: [],
                tables: []
              },
              messages: [
@@ -491,7 +617,7 @@ import { mapState, mapMutations } from 'vuex'
               { text: 'Image', type: 'string', icon: 'image' },
               { text: 'File', type: 'string', icon: 'insert_drive_file' },
               { text: 'Date Time', type: 'dateTime', icon: 'date_range' },
-              { text: 'Relations', type: 'bigInteger', icon: 'call_split' },
+              { text: 'Relation', type: 'relation', icon: 'call_split' },
             ],
           }
         },
@@ -539,7 +665,7 @@ import { mapState, mapMutations } from 'vuex'
             let obj = {
                   new: true,
                   old_name: '',
-                  name: '',
+                  name: 'New Collection',
                   fields: [
                     {
                       new: true,
@@ -770,6 +896,56 @@ import { mapState, mapMutations } from 'vuex'
 
           },
 
+
+          addRelation(){
+
+            var self = this;  
+
+            var err = 0;
+
+            //No empty fields
+            if(self.table1 != "" || self.table2 != "" || self.relationship != ""){
+              //No same collections
+              if(self.table1 != self.table2){
+
+                var qty = self.app.relations.length;
+                if(qty > 0){
+                  for (var i = 0; i < qty; i++){
+                    if(self.app.relations[i].table1 == self.table1 && self.app.relations[i].table2 == self.table2 && self.app.relations[i].relationship == self.relationship){
+                      err = err+1;
+                    }
+                  }
+                }
+                console.log(qty)
+                if(err < 1){
+                  //populat object
+                  let obj = {
+                    table1: self.table1,
+                    relationship: self.relationship,
+                    table2: self.table2,
+                    field: self.field
+                  };
+
+                  //Pushing object
+                  self.app.relations.push(obj);
+
+                  //Empty fields
+                  self.table1 = '';
+                  self.relationship = '';
+                  self.table2 = '';
+                  self.field = '';
+                }
+              }
+            }
+
+          },
+
+          removeRelation(i){
+            
+            this.app.relations.splice(i, 1) 
+
+          },
+
           getApiTable(i){
             
             this.getApiDialog = true;
@@ -807,15 +983,57 @@ import { mapState, mapMutations } from 'vuex'
                 console.log(error);
             });
 
+          }, 
+          populateRelationFieldDropdown(val){
+            const self = this;
+            var table;
+            //Empty fields
+            self.fields = [];
+
+            //Find the table
+            $.each(self.app.tables, function(key, value) {
+
+              if(value["name"] == val){
+                table = value;
+              }
+
+            });
+
+
+            //Populate the fields
+            $.each(table.fields, function(key, value) {
+              
+              if(value["type"] == 'integer'){
+                self.fields.push(value["name"]);
+              }
+            
+            });
+
+            // if(self.fields){
+            //   alert("The table don't has a integer field");
+            // }
+
           }
          
         },
 
-        // watch: {
-        //     id: function () {
-        //         this.getApp();
-        //     },
-        // },
+        watch: {
+          table2: function(val){
+            this.populateRelationFieldDropdown(val);
+          },
+
+          relationDialog: function(val){
+            if(!val){
+              this.table1 = '';
+              this.relationship = '';
+              this.table2 = '';
+              this.field = '';
+            }
+          }
+            // id: function () {
+            //     this.getApp();
+            // },
+        },
         mounted() {
 
            const self = this;

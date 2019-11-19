@@ -114,6 +114,7 @@ import { mapState, mapMutations } from 'vuex'
                  active: false,
                  token: '',
                },
+               relations: [],
                tables: [],
                users: []
             },
