@@ -487,14 +487,17 @@
                           <th class="text-left">Table 1</th>
                           <th class="text-left">Type</th>
                           <th class="text-left">Table 2</th>
+                          <th class="text-left">Field</th>
                           <th class="text-left"></th>
                         </tr>
                       </thead>
                       <tbody>
                         <tr v-for="item in app.relations" :key="item.table1">
-                          <td width="30%">{{ item.table1 }}</td>
-                          <td width="30%">{{ item.relationship }}</td>
-                          <td width="30%">{{ item.table2 }}</td>
+                          <td width="20%">{{ item.table1 }}</td>
+                          <td v-if="item.relationship == 1" width="30%">One to One</td>
+                          <td v-if="item.relationship == 2" width="30%">One to Many</td>
+                          <td width="20%">{{ item.table2 }}</td>
+                          <td width="20%">{{ item.field }}</td>
                           <td width="10%">
                             <v-btn @click="removeRelation(item)" value="left" color="red lighten-4">
                                 <span class="hidden-sm-and-down">Remove</span>
@@ -904,7 +907,7 @@ import { mapState, mapMutations } from 'vuex'
             var err = 0;
 
             //No empty fields
-            if(self.table1 != "" || self.table2 != "" || self.relationship != ""){
+            if(self.table1 != "" || self.table2 != "" || self.relationship != "" || self.field != ""){
               //No same collections
               if(self.table1 != self.table2){
 
@@ -935,7 +938,11 @@ import { mapState, mapMutations } from 'vuex'
                   self.table2 = '';
                   self.field = '';
                 }
+              }else{
+                alert("Don't must the same collections relations");
               }
+            }else{
+              alert("All fields are required");
             }
 
           },
