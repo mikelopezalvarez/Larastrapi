@@ -33,10 +33,10 @@
 
             <v-navigation-drawer
                     v-model="drawer"
-                    dark
+                    light
                     app
                     clipped
-                    style="background-color: #17202f;"
+                    style="background-color: #f3f3f7"
                     left>
 
 <!--                    
@@ -53,7 +53,7 @@
                     </v-col> -->
                       
                    
-                <v-list dense>
+                <v-list dense class="mt-4">
                     @foreach($nav as $n)
                         @if($n["visible"])
                         @php
@@ -61,7 +61,7 @@
                         @endphp
                        
                             <v-list-item :to="{name: '{{$route}}'}" :exact="false">
-                                <v-list-item-action>
+                                <v-list-item-action class="mr-3 ml-3">
                                     <v-icon>{{$n["icon"]}}</v-icon>
                                 </v-list-item-action>
                                 <v-list-item-content>
@@ -75,8 +75,8 @@
                         @endif
                     @endforeach
 
-                    <v-list-item @click="clickLogout('{{route('logout')}}','{{url('/')}}')">
-                        <v-list-item-action>
+                    <v-list-item class="main-menu-items" @click="clickLogout('{{route('logout')}}','{{url('/')}}')">
+                        <v-list-item-action class="mr-3 ml-3">
                             <v-icon>directions_walk</v-icon>
                         </v-list-item-action>
                         <v-list-item-content>
@@ -87,10 +87,10 @@
                 </v-list>
             </v-navigation-drawer>
 
-            <v-app-bar app clipped-left elevation="1">
+            <v-app-bar app clipped-left elevation="0" style="background-color: #f3f3f7">
                 <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
                 {{-- <v-toolbar-title>{{config('app.name')}}</v-toolbar-title> --}}
-                <v-toolbar-title><!--<img src="img/triple-s-vida-logo.png" alt="TripleS - Vida" style="height: 42px; padding-top:10px">-->Octapi.io</v-toolbar-title>
+                <v-toolbar-title><img src="img/octapi-octopus.svg" alt="TripleS - Vida" style="height:42px;position: absolute;"><span class="logo-name">ctapi</span></v-toolbar-title>
             </v-app-bar>
 
             <v-content>
@@ -107,14 +107,14 @@
                         </v-breadcrumbs-item>
                     </v-breadcrumbs>
                 </div> --}}
-                <v-divider></v-divider>
+                {{-- <v-divider></v-divider> --}}
                 <transition name="fade">
                     <router-view></router-view>
                 </transition>
             </v-content>
-            <v-footer fixed>
+            {{-- <v-footer fixed>
                 <span>&copy; 2017</span>
-            </v-footer>
+            </v-footer> --}}
         </v-app>
 
         <!-- loader -->
