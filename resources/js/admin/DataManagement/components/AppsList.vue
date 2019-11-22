@@ -19,7 +19,7 @@
                       <p class="title text--primary">{{ item.name }}</p>
                       <p class="app-card--description">{{ item.app_description }}</p>
                     </v-card-text>
-                    <v-card-actions>
+                    <v-card-actions class="float-right">
                       <!-- <v-btn depressed small @click="selectApp(item)" class="blue--text text--lighten-1"><v-icon>mdi-database-edit</v-icon></v-btn> -->
                       <!-- <v-btn depressed small @click="selectApp(item)" class="deep-purple--text text--lighten-1"><v-icon>mdi-table-plus</v-icon></v-btn> -->
 
