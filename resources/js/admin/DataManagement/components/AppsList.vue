@@ -15,7 +15,7 @@
               <template v-if="appInd">
                 <v-col cols="3" v-for="item in apps" v-bind:data="item" v-bind:key="item.name">
                   <v-card class="" height="200px">
-                    <v-card-text>
+                    <v-card-text> 
                       <p class="title text--primary">{{ item.name }}</p>
                       <p class="app-card--description">{{ item.app_description }}</p>
                     </v-card-text>
@@ -40,11 +40,26 @@
                 </v-col>
               </template>
               <template v-else>
-                <v-col cols="12">
-                  <v-alert icon="view_carousel" prominent text type="info">
+                <v-col cols="12" full-height>
+                  <div class="text-center" >
+                    <img src="img/octopus-empty-state.svg" alt="" style="max-width:400px; margin-top:5%; opacity: 0.5;">
+                  </div>
+                  <div class="my-5 py-5">
+                    <h3 class="text-center mb-5">You don't have applications created yet,<br> to create applications click here<img src="img/arrow.svg" alt="" style="height: 75px; position: absolute; padding-top: 6px; margin-left: -12px;"></h3>
+                  </div>
+                  <div>
+                    
+                    <router-link to="/app/create">
+                      <div class="hexagon-container-2">
+                        <v-icon class="custom-add-2">mdi-plus</v-icon>
+                        <div class="hex"></div>
+                      </div>
+                    </router-link>
+                  </div>
+                  <!-- <v-alert icon="view_carousel" prominent text type="info">
                     <strong>You don't have applications created yet,</strong> to create applications click
                     <v-btn to="/app/create" depressed small>Here</v-btn>
-                  </v-alert>
+                  </v-alert> -->
                 </v-col>
               </template>
             </v-row>
@@ -55,7 +70,7 @@
         <v-icon>mdi-plus</v-icon>
       </v-btn> -->
     </v-card>
-    <router-link to="/app/create">
+    <router-link v-if="appInd" to="/app/create">
       <div class="hexagon-container">
         <v-icon class="custom-add">mdi-plus</v-icon>
         <div class="hex"></div>

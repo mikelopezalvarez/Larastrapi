@@ -38,10 +38,21 @@
           transition: transform 1s ease-in-out;
 }
 
+.hexagon-container-2 {
+  position: relative;
+  -webkit-transition: -webkit-transform 1s ease-in-out;
+          transition: transform 1s ease-in-out;
+}
+
 .hexagon-container:hover {
   position: absolute;
   right: 40px;
   bottom: 45px;
+  -webkit-transform: rotate(180deg);
+          transform: rotate(180deg);
+}
+
+.hexagon-container-2:hover {
   -webkit-transform: rotate(180deg);
           transform: rotate(180deg);
 }
@@ -53,6 +64,17 @@
   z-index: 7;
   left: 17px;
   bottom: 23px;
+  font-size: 46px !important;
+}
+
+.custom-add-2 {
+  position: absolute;
+  margin: 1em auto;
+  width: 100%;
+  color: #ffffff !important;
+  z-index: 7;
+  left: 1px;
+  top: -37px;
   font-size: 46px !important;
 }
 
