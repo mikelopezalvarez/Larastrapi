@@ -91,6 +91,17 @@
                 <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
                 {{-- <v-toolbar-title>{{config('app.name')}}</v-toolbar-title> --}}
                 <v-toolbar-title><img src="img/octapi-octopus.svg" alt="TripleS - Vida" style="height:42px;position: absolute;"><span class="logo-name">ctapi</span></v-toolbar-title>
+                <v-spacer></v-spacer>
+
+                <v-toolbar-items>
+                    <v-btn icon>
+                        <v-icon>mdi-help-circle</v-icon>
+                    </v-btn>
+                    <v-btn icon>
+                        <v-icon>mdi-github-circle</v-icon>
+                    </v-btn>
+                    <v-btn text>admin@gmail.com</v-btn>
+                </v-toolbar-items>
             </v-app-bar>
 
             <v-content>
