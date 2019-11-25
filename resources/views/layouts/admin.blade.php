@@ -62,7 +62,8 @@
                        
                             <v-list-item :to="{name: '{{$route}}'}" :exact="false">
                                 <v-list-item-action class="mr-3 ml-3">
-                                    <v-icon>{{$n["icon"]}}</v-icon>
+                                    <img src="img/{{$n["icon"]}}.png" alt="" style="height: 30px;">
+                                    {{-- <v-icon>{{$n["icon"]}}</v-icon> --}}
                                 </v-list-item-action>
                                 <v-list-item-content>
                                     <v-list-item-title>
@@ -77,7 +78,8 @@
 
                     <v-list-item class="main-menu-items" @click="clickLogout('{{route('logout')}}','{{url('/')}}')">
                         <v-list-item-action class="mr-3 ml-3">
-                            <v-icon>directions_walk</v-icon>
+                            {{-- <v-icon>directions_walk</v-icon> --}}
+                            <img src="img/logout.png" alt="" style="height: 30px;">
                         </v-list-item-action>
                         <v-list-item-content>
                             <v-list-item-title>Logout</v-list-item-title>

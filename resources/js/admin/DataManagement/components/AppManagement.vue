@@ -35,7 +35,7 @@
             ></v-switch>
 
             <template v-if="app.security.active == true">
-              <v-text-field 
+              <v-text-field id="input-69"
                 v-model="app.security.token" 
                 label="Token" outlined dense 
                 inverted
@@ -60,15 +60,15 @@
               </p> -->
             </template>
 
-            <div class="text-center">
+            <!-- <div class="text-center">
             
 
             <v-btn dark color="deep-purple darken-1" depressed @click.prevent="saveConfirm">Save Configuration</v-btn>
-            </div>
+            </div> -->
 
           </v-card-text>
           <v-card-actions>
-           
+              
           </v-card-actions>
 
 
@@ -76,29 +76,32 @@
         </v-card>
       </v-col>
       <v-col md="9">
-        <v-card class="pa-3" outlined tile>
+
+        <v-card outlined class="mb-3">
+          <v-toolbar flat>
+            <v-btn dark color="light-green darken-1" class="mr-3" depressed @click="addTable"> <v-icon class="mr-1">grid_on</v-icon> Add Collection</v-btn>
+            <v-btn v-if="app.tables.length > 1" value="left" dark color="light-blue darken-1" depressed @click="relationDialog = true"> <v-icon class="mr-1">call_split</v-icon> Add Relationship</v-btn>
+            <v-spacer></v-spacer>
+            <v-btn dark color="deep-purple darken-1" depressed @click.prevent="saveConfirm">Save Configuration</v-btn>
+          </v-toolbar>
+        </v-card>
+        <!-- <v-card class="pa-3" outlined> -->
          
-         
-
-
-
-
-
           <v-container fluid>
               <v-row justify="center">
-                <v-subheader class="pb-md-4">
+                <!-- <v-subheader class="pb-md-4"> -->
                   
-                  <v-btn  small value="left" color="green lighten-4" @click="addTable">
+                  <!-- <v-btn  small value="left" color="green lighten-4" @click="addTable">
                     <span class="hidden-sm-and-down">Add Collection</span>
                     <v-icon right>grid_on</v-icon>
-                  </v-btn>
-                  <v-btn v-if="app.tables.length > 1" small value="left" color="blue lighten-4" @click="relationDialog = true">
+                  </v-btn> -->
+                  <!-- <v-btn v-if="app.tables.length > 1" small value="left" color="blue lighten-4" @click="relationDialog = true">
                     <span class="hidden-sm-and-down">Add Relationship</span>
                     <v-icon right>call_split</v-icon>
-                  </v-btn>
-                </v-subheader>
+                  </v-btn> -->
+                <!-- </v-subheader> -->
 
-                <v-expansion-panels popout>
+                <v-expansion-panels focusable>
                   <v-expansion-panel
                     v-for="(table, i) in app.tables"
                     :key="i"
@@ -325,21 +328,7 @@
                 </v-expansion-panels>
               </v-row>
             </v-container>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        </v-card>
+        <!-- </v-card> -->
       </v-col>
     </v-row>
 
@@ -354,22 +343,21 @@
 
       <v-card>
         <v-card-title
-          class="headline grey lighten-2"
+          class="title grey lighten-2"
           primary-title
         >
           API - {{txtApiTable}}
         </v-card-title>
 
-        <v-card-text>
+        <v-card-text class="pt-5">
 
-          <v-text-field
-            class="pt-4"
-            label="Get"
-            v-model="txtApiGet"
-            readonly
-          ></v-text-field>
+          <v-text-field class="api-info-field" label="GET" prefix="GET" solo outlined dense v-model="txtApiGet" readonly ></v-text-field>
+          <v-text-field class="api-info-field" label="FIND" prefix="FIND" solo outlined dense v-model="txtApiFind" readonly ></v-text-field>
+          <v-text-field class="api-info-field" label="CREATE" prefix="CREATE" solo outlined dense v-model="txtApiCreate" readonly ></v-text-field>
+          <v-text-field class="api-info-field" label="UPDATE" prefix="UPDATE" solo outlined dense v-model="txtApiUpdate" readonly ></v-text-field>
+          <v-text-field class="api-info-field" label="DELETE" prefix="DELETE" solo outlined dense v-model="txtApiDelete" readonly ></v-text-field>
 
-          <v-text-field
+          <!-- <v-text-field
             label="Find"
             v-model="txtApiFind"
             readonly
@@ -392,7 +380,7 @@
             label="Delete"
             v-model="txtApiDelete"
             readonly
-          ></v-text-field>
+          ></v-text-field> -->
 
         </v-card-text>
 

@@ -633,6 +633,26 @@ a {
   background: red;
 }
 
+input#input-69 {
+  font-size: 14px;
+}
+
+.swal2-popup {
+  font-family: "Roboto" !important;
+}
+
+.api-info-field .v-text-field__prefix {
+  background: #8877be;
+  color: #ffffff;
+  height: 35px;
+  margin-right: 5px;
+  padding: 4px 10px;
+  min-width: 80px;
+  text-align: center;
+  font-size: 14px;
+  border-radius: 5px;
+}
+
 .theme--light.v-list-item--active,
 .theme--light.v-list-item--active:hover,
 .theme--light.v-list-item:focus {
@@ -640,7 +660,7 @@ a {
   background: white;
   border-radius: 50px;
   padding: 0px 15px;
-  width: 208px;
+  width: 210px;
   margin-left: 10px;
 }
 
