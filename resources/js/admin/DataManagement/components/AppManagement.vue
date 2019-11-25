@@ -9,11 +9,11 @@
     </v-alert>-->
     <v-row class="">
       <v-col md="3">
-        <v-card class="pa-3" outlined tile>
+        <v-card class="pa-3" outlined>
           
           <v-card-text>
             <!--<div>Word of the Day</div>-->
-            <p class="display-1 text--primary">
+            <p class="title text--primary">
               {{ appInfo.name }}
 
               {{ id }}
@@ -35,7 +35,16 @@
             ></v-switch>
 
             <template v-if="app.security.active == true">
-              <p class="text-center">
+              <v-text-field 
+                v-model="app.security.token" 
+                label="Token" outlined dense 
+                inverted
+                class="mb-3 mt-3" readonly
+                append-icon="refresh"
+                @click:append="refreshToken"
+              ></v-text-field>
+
+              <!-- <p class="text-center">
                 <strong>Token:</strong> <br />
                 {{ app.security.token }}
                 
@@ -48,13 +57,13 @@
                   >
                     Refresh
                   </v-btn>
-              </p>
+              </p> -->
             </template>
 
             <div class="text-center">
             
 
-            <v-btn depressed @click.prevent="saveConfirm">Save Configuration</v-btn>
+            <v-btn dark color="deep-purple darken-1" depressed @click.prevent="saveConfirm">Save Configuration</v-btn>
             </div>
 
           </v-card-text>

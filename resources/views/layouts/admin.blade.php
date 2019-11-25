@@ -90,7 +90,7 @@
             <v-app-bar app clipped-left elevation="0" style="background-color: #f3f3f7">
                 <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
                 {{-- <v-toolbar-title>{{config('app.name')}}</v-toolbar-title> --}}
-                <v-toolbar-title><img src="img/octapi-octopus.svg" alt="TripleS - Vida" style="height:42px;position: absolute;"><span class="logo-name">ctapi</span></v-toolbar-title>
+                <v-toolbar-title><img src="img/octapi-octopus.svg" alt="Octapi" style="height:42px;position: absolute;"><span class="logo-name">ctapi</span></v-toolbar-title>
                 <v-spacer></v-spacer>
 
                 <v-toolbar-items>
